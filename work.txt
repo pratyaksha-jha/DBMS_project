@@ -1,1 +1,49 @@
 Document the work done or to be done in here
+
+nirf-insights-project/
+│
+├── backend/                 # Python (Flask/FastAPI, Web Scraper, SQLite)
+│   ├── data/                # Raw scraped files (if any)
+│   ├── database/            # SQLite setup and queries
+│   ├── scraper/             # Beautiful Soup scripts
+│   ├── api/                 # API routes serving data to React
+│   ├── requirements.txt     # Python dependencies
+│   └── main.py              # Entry point to run your backend server
+│
+├── frontend/                # React (Vite/CRA, Map, Charts)
+│   ├── public/              # Static assets (images, raw map JSONs)
+│   ├── src/                 # React source code
+│   ├── package.json         # Node.js dependencies
+│   └── vite.config.js       # Vite configuration (if using Vite)
+│
+└── README.md                # Project documentation
+
+
+1. The Backend (Python)
+I highly recommend using FastAPI or Flask to create a lightweight API that connects your SQLite database to your React frontend.
+backend/main.py: The central file that starts your server. It connects your API routes and initializes the database connection.
+backend/scraper/nirf_scraper.py: Your Beautiful Soup logic goes here. This script will make HTTP requests to the NIRF website, parse the HTML tables, and extract parameters like Teaching, Learning & Resources (TLR), Research (RPC), etc.
+backend/database/models.py: This file handles your database schema. If you use an ORM like SQLAlchemy (recommended), you will define your tables here (e.g., Institute, Ranking, Parameters).
+backend/database/db_utils.py: Helper functions to insert your scraped data into SQLite and execute SQL queries to fetch data for the frontend.
+backend/api/routes.py: Your API endpoints. For example:
+    /api/institutes -> Returns a list of all institutes.
+    /api/institutes/{id}/parameters -> Returns the specific NIRF parameters for the graphs.
+    /api/map-data -> Returns state-wise data for the India map.
+
+backend/database/nirf_data.db: This will be your actual SQLite database file (auto-generated once you run your DB creation script).
+
+2. The Frontend (React)
+Your React folder will handle the UI, state management, and visualizations.
+
+frontend/src/App.jsx: The main React component that holds your routing logic (e.g., navigating from the Home page to an Institute Details page).
+frontend/src/services/api.js: Centralized file for all your Axios or Fetch calls to communicate with your Python backend.
+frontend/src/pages/:
+  Dashboard.jsx: The main landing page.
+  InstituteDetail.jsx: A page dedicated to a single institute showing its specific graphs.
+
+frontend/src/components/: This is where your reusable UI widgets live.
+  IndiaMap.jsx: The map component. You can use libraries like react-simple-maps combined with a TopoJSON file of India.
+  ParameterChart.jsx: Your graphing component. Libraries like Recharts or Chart.js are perfect for displaying NIRF parameters (Bar charts for TLR vs. RPC scores, line charts for historical rankings).
+  InstituteCard.jsx: A simple card displaying basic institute info (Name, State, Overall Rank) used in lists.
+
+frontend/public/india-states.json: If you use an interactive map, you will likely need a GeoJSON or TopoJSON file of India's map, which you should store in the public folder.
