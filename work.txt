@@ -47,3 +47,16 @@ frontend/src/components/: This is where your reusable UI widgets live.
   InstituteCard.jsx: A simple card displaying basic institute info (Name, State, Overall Rank) used in lists.
 
 frontend/public/india-states.json: If you use an interactive map, you will likely need a GeoJSON or TopoJSON file of India's map, which you should store in the public folder.
+
+27 March:
+Scraped all data from NIRF website for 5 years 2021-2025, 4 domains - Overall,Engineering,Management,Research using Beautiful Soup.
+Data written to csv file nirf.csv and database file nirf.db table rankings.
+Table contains 15 columns- id,name,tlr,rpc,go,oi,perception,city,state,total,rank,year,domain,latitude,longitude
+Latitude, Longitude collected through OpenStreetMap
+Database file and python script scraper.py prent is scraper folder of backend
+How to run:
+cd backend
+pip install -r requirements.txt
+cd scraper
+python scraper.py
+Can access database from the database file too without running the script
