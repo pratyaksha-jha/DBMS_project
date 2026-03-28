@@ -103,3 +103,15 @@ backend/database/queries.py
 How to run:
 cd backend/database
 python queries.py
+
+28 March
+frontend map part complete
+topojson file -> frontend/public/india.json
+location fetched from -> backend/database/nirf.db/rankings
+in order to run:
+cd backend
+uvicorn main:app --reload
+
+in new terminal:
+cd frontend
+npm run dev
