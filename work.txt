@@ -60,3 +60,46 @@ pip install -r requirements.txt
 cd scraper
 python scraper.py
 Can access database from the database file too without running the script
+
+
+27 March:
+Designed and implemented structured database for NIRF data.
+
+Converted raw scraped data (nirf.db) into a clean normalized database (clean_nirf.db).
+
+Created 3 tables:
+- institutes (id, name, city, state, latitude, longitude)
+- rankings (id, year, domain, rank, score)
+- parameters (id, year, domain, tlr, rpc, go, oi, pr)
+
+Used Python (sqlite3) to:
+- Read raw data from scraper database
+- Remove redundancy using mapping (institute_map)
+- Insert data into respective tables
+- Maintain primary keys and foreign key relationships
+
+Implemented transformation script:
+backend/database/transform.py
+
+How to run:
+cd backend/database
+python transform.py
+
+Output:
+Creates clean database file:
+backend/data/clean_nirf.db
+
+
+Also implemented SQL queries for analysis:
+- Top 5 institutes (by rank)
+- Top institutes by RPC
+- New institutes (year-wise comparison)
+- Rank improvement analysis
+- State-wise institute distribution
+
+File:
+backend/database/queries.py
+
+How to run:
+cd backend/database
+python queries.py
