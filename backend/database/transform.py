@@ -17,7 +17,7 @@ clean_cursor = clean_conn.cursor()
 
 clean_cursor.execute("""
 CREATE TABLE IF NOT EXISTS institutes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     name TEXT UNIQUE,
     city TEXT,
     state TEXT,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS institutes (
 
 clean_cursor.execute("""
 CREATE TABLE IF NOT EXISTS rankings (
-    id INTEGER,
+    id TEXT,
     year INTEGER,
     domain TEXT,
     rank INTEGER,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS rankings (
 
 clean_cursor.execute("""
 CREATE TABLE IF NOT EXISTS parameters (
-    id INTEGER,
+    id TEXT,
     year INTEGER,
     domain TEXT,
     tlr REAL,
@@ -75,29 +75,29 @@ count = 0
 
 for row in rows:
     (
-        _id, name, tlr, rpc, go, oi, perception,
+        id, name, tlr, rpc, go, oi, perception,
         city, state, total, rank, year, domain,
         lat, lon
     ) = row
 
-    
+
     # INSERT INTO INSTITUTES
     
 
     if name not in institute_map:
         clean_cursor.execute("""
-        INSERT OR IGNORE INTO institutes (name, city, state, latitude, longitude)
-        VALUES (?, ?, ?, ?, ?)
-        """, (name, city, state, lat, lon))
+        INSERT OR IGNORE INTO institutes (id, name, city, state, latitude, longitude)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (id,name, city, state, lat, lon))
 
-        clean_cursor.execute("""
-        SELECT id FROM institutes WHERE name = ?
-        """, (name,))
-        inst_id = clean_cursor.fetchone()[0]
+        # clean_cursor.execute("""
+        # SELECT id FROM institutes WHERE name = ?
+        # """, (name,))
+        # inst_id = clean_cursor.fetchone()[0]
 
-        institute_map[name] = inst_id
-    else:
-        inst_id = institute_map[name]
+        institute_map[name] = id
+    # else:
+    #     inst_id = institute_map[name]
 
 
     
@@ -107,7 +107,7 @@ for row in rows:
     clean_cursor.execute("""
     INSERT OR IGNORE INTO rankings (id, year, domain, rank, score)
     VALUES (?, ?, ?, ?, ?)
-    """, (inst_id, year, domain, rank, total))
+    """, (id, year, domain, rank, total))
 
 
     
@@ -118,7 +118,7 @@ for row in rows:
     INSERT OR IGNORE INTO parameters
     (id, year, domain, tlr, rpc, go, oi, pr)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (inst_id, year, domain, tlr, rpc, go, oi, perception))
+    """, (id, year, domain, tlr, rpc, go, oi, perception))
 
     count += 1
 
