@@ -118,4 +118,7 @@ npm run dev
 
 8 March:
 pdf scraping part complete
-
+pdf scraping is in general slow, but to optimize the code a little,
+we used ThreadPoolExecutor library:
+-it basically inserts threads of five rows, instead of one row at a time
+Also the research domain does not habe pdfs.

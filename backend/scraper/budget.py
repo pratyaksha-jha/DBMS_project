@@ -5,10 +5,10 @@ from bs4 import BeautifulSoup
 from io import BytesIO
 import pandas as pd
 import sqlite3
-import time
+from concurrent.futures import ThreadPoolExecutor
 
 # DB SETUP
-conn = sqlite3.connect("nirf_full.db")
+conn = sqlite3.connect("nirf_budget.db")
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -32,14 +32,14 @@ CREATE TABLE IF NOT EXISTS nirf_data (
     consultancy_amount REAL
 )
 """)
-
 conn.commit()
 
 # CONFIG
+session = requests.Session()
 headers = {"User-Agent": "Mozilla/5.0"}
 
 domains = ["Overall", "Engineering", "Management"]
-years=[2025]
+years = [2025]
 
 pdf_cache = {}
 
@@ -47,9 +47,9 @@ pdf_cache = {}
 def load_pdf(pdf_url):
     if pdf_url in pdf_cache:
         return pdf_cache[pdf_url]
-    response = requests.get(pdf_url, headers=headers)
-    pdf = pdfplumber.open(BytesIO(response.content))
 
+    response = session.get(pdf_url, headers=headers)
+    pdf = pdfplumber.open(BytesIO(response.content))
     pdf_cache[pdf_url] = pdf
     return pdf
 
@@ -59,15 +59,9 @@ def capital_exp(pdf):
             "workshops": None, "studios": None,
             "capital_assets": None}
 
-    found = False
-
     for page in pdf.pages:
         text = page.extract_text()
-
-        if text and "capital expenditure" in text.lower():
-            found = True
-
-        if not found:
+        if not text or "capital expenditure" not in text.lower():
             continue
 
         for table in page.extract_tables() or []:
@@ -76,7 +70,6 @@ def capital_exp(pdf):
                     continue
 
                 cat = " ".join([str(c).lower() for c in row if c])
-
                 values = [
                     c.split("(")[0].strip().replace(",", "")
                     for c in row if c and any(x.isdigit() for x in c)
@@ -96,21 +89,17 @@ def capital_exp(pdf):
                 elif "other expenditure" in cat:
                     data["capital_assets"] = values
 
+        break 
+
     return data
 
 # OPERATIONAL EXPENDITURE
 def oper_exp(pdf):
     data = {"salaries": None, "maintenance": None, "seminars": None}
 
-    found = False
-
     for page in pdf.pages:
         text = page.extract_text()
-
-        if text and "operational expenditure" in text.lower():
-            found = True
-
-        if not found:
+        if not text or "operational expenditure" not in text.lower():
             continue
 
         for table in page.extract_tables() or []:
@@ -119,7 +108,6 @@ def oper_exp(pdf):
                     continue
 
                 cat = " ".join([str(c).lower() for c in row if c])
-
                 values = [
                     c.split("(")[0].strip().replace(",", "")
                     for c in row if c and any(x.isdigit() for x in c)
@@ -134,6 +122,8 @@ def oper_exp(pdf):
                     data["maintenance"] = values
                 elif "seminars" in cat:
                     data["seminars"] = values
+
+        break
 
     return data
 
@@ -172,10 +162,63 @@ def research_consult(pdf):
                         elif in_consult:
                             consultancy = values
 
+        if research and consultancy:
+            break
+
     return research, consultancy
 
-# MAIN LOOP
+# PROCESS EACH INSTITUTE
+def process_institute(row, year, domain):
+    cols = row.find_all("td")
+    if not cols:
+        return []
 
+    insti_ID = cols[0].text.strip()
+
+    pdf_url = None
+    for a in row.find_all("a", href=True):
+        if ".pdf" in a["href"]:
+            pdf_url = a["href"]
+            break
+
+    if not pdf_url:
+        return []
+
+    try:
+        pdf = load_pdf(pdf_url)
+
+        cap = capital_exp(pdf)
+        op = oper_exp(pdf)
+        res, con = research_consult(pdf)
+
+        years_list = ["2023-24", "2022-23", "2021-22"]
+
+        results = []
+
+        for i in range(3):
+            row_data = (
+                insti_ID, year, domain, years_list[i],
+                float(cap["library"][i]) if cap["library"] else None,
+                float(cap["equipment"][i]) if cap["equipment"] else None,
+                float(cap["workshops"][i]) if cap["workshops"] else None,
+                float(cap["studios"][i]) if cap["studios"] else None,
+                float(cap["capital_assets"][i]) if cap["capital_assets"] else None,
+                float(op["salaries"][i]) if op["salaries"] else None,
+                float(op["maintenance"][i]) if op["maintenance"] else None,
+                float(op["seminars"][i]) if op["seminars"] else None,
+                float(res[i]) if res else None,
+                float(con[i]) if con else None
+            )
+            results.append(row_data)
+
+        print(f"Done: {insti_ID}")
+        return results
+
+    except Exception as e:
+        print(f"Error {insti_ID}: {e}")
+        return []
+
+# MAIN LOOP
 all_data = []
 
 for year in years:
@@ -183,7 +226,7 @@ for year in years:
 
         url = f"https://www.nirfindia.org/Rankings/{year}/{domain}Ranking.html"
 
-        response = requests.get(url, headers=headers)
+        response = session.get(url, headers=headers)
         if response.status_code != 200:
             print(f"Failed for {domain}")
             continue
@@ -191,72 +234,23 @@ for year in years:
         soup = BeautifulSoup(response.text, "html.parser")
         rows = soup.find("table").find_all("tr")
 
-        for row in rows:
-            cols = row.find_all("td")
-            if not cols:
-                continue
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(process_institute, row, year, domain) for row in rows]
 
-            insti_ID = cols[0].text.strip()
+            for future in futures:
+                results = future.result()
+                all_data.extend(results)
 
-            pdf_url = None
-            for a in row.find_all("a", href=True):
-                if ".pdf" in a["href"]:
-                    pdf_url = a["href"]
-                    break
+        print(f"Finished: {year}-{domain}")
 
-            if not pdf_url:
-                continue
+# BULK INSERT
+cursor.executemany("""
+INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+""", all_data)
 
-            try:
-                pdf = load_pdf(pdf_url)
+conn.commit()
 
-                cap = capital_exp(pdf)
-                op = oper_exp(pdf)
-                res, con = research_consult(pdf)
-
-                years_list = ["2023-24", "2022-23", "2021-22"]
-
-                for i in range(3):
-
-                    row_data = (
-                        insti_ID,
-                        year,
-                        domain,
-                        years_list[i],
-
-                        float(cap["library"][i]) if cap["library"] else None,
-                        float(cap["equipment"][i]) if cap["equipment"] else None,
-                        float(cap["workshops"][i]) if cap["workshops"] else None,
-                        float(cap["studios"][i]) if cap["studios"] else None,
-                        float(cap["capital_assets"][i]) if cap["capital_assets"] else None,
-
-                        float(op["salaries"][i]) if op["salaries"] else None,
-                        float(op["maintenance"][i]) if op["maintenance"] else None,
-                        float(op["seminars"][i]) if op["seminars"] else None,
-
-                        float(res[i]) if res else None,
-                        float(con[i]) if con else None
-                    )
-
-                    cursor.execute("""
-                    INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, row_data)
-
-                    all_data.append(row_data)
-
-                print(f"Done: {insti_ID}")
-
-            except Exception as e:
-                print(f"Error {insti_ID}: {e}")
-
-            time.sleep(0.5)
-
-        conn.commit()
-        print(f"Saved to DB for {year}-{domain}")
-
-# -------------------------------
-# SAVE CSV ALSO
-# -------------------------------
+# SAVE CSV
 columns = [
     "insti_ID", "nirf_year", "domain", "fin_year",
     "library", "equipment", "workshops", "studios", "capital_assets",
