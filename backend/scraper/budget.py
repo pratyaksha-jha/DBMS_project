@@ -13,7 +13,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS nirf_data (
-    insti_ID TEXT,
+    id TEXT,
     nirf_year INTEGER,
     domain TEXT,
     fin_year TEXT,
