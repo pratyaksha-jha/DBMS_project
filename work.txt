@@ -115,3 +115,7 @@ uvicorn main:app --reload
 in new terminal:
 cd frontend
 npm run dev
+
+8 March:
+pdf scraping part complete
+
