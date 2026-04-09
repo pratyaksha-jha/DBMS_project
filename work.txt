@@ -122,3 +122,22 @@ pdf scraping is in general slow, but to optimize the code a little,
 we used ThreadPoolExecutor library:
 -it basically inserts threads of five rows, instead of one row at a time
 Also the research domain does not habe pdfs.
+
+
+9 April:
+
+Integrated budget data[nirf_full.db] into the main database[clean_nirf.db].
+Added new table:
+- budget (id, nirf_year, domain, fin_year, library, equipment, workshops, studios, capital_assets, salaries, maintenance, seminars, research_amount, consultancy_amount)
+Script:
+backend/database/budget_transform.py
+
+How to run:
+cd backend/scraper
+python budget.py
+
+cd ../database
+python budget_transform.py
+
+Output:
+Adds budget table to clean_nirf.db
