@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard.jsx';
 import Institute_analysis from './pages/institute_analysis';
+import Analytics from './pages/Analytics.jsx'
+
 
 function App() {
   return (
@@ -10,7 +12,9 @@ function App() {
           <Routes>
             {/* We only want the Dashboard to load on the main URL */}
             <Route path="/" element={<Dashboard />} />
+            
             <Route path="/institute_analysis" element={<Institute_analysis />} />
+            <Route path="/overall_analysis" element={<Analytics />} />
           </Routes>
         </main>
       </div>
