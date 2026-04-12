@@ -8,6 +8,7 @@ import {
 } from "react-simple-maps";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
+import { API_BASE } from "../lib/api";
 
 const geoUrl = "/india.json";
 
@@ -16,17 +17,17 @@ function IndiaMap() {
     const [allInstitutes, setAllInstitutes] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/nirf-data") 
+        fetch(`${API_BASE}/api/nirf-data`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
                     console.error("Backend error:", data.error);
                     return;
                 }
-                
-                console.log("Data received from backend:", data); // DEBUG: Check your browser console
+                if (!Array.isArray(data)) return;
+
                 setAllInstitutes(data);
-                
+
                 const grouped = data.reduce((acc, institute) => {
                     const stateName = institute.state ? institute.state.trim().toLowerCase() : "unknown";
                     if (!acc[stateName]) {
@@ -35,7 +36,7 @@ function IndiaMap() {
                     acc[stateName].push(institute);
                     return acc;
                 }, {});
-                
+
                 setInstitutesByState(grouped);
             })
             .catch((error) => console.error("Error fetching NIRF data:", error));
@@ -43,92 +44,91 @@ function IndiaMap() {
 
     const getStateTooltip = (geoName) => {
         if (!geoName) return "Unknown State";
-        
+
         const normalizedName = geoName.trim().toLowerCase();
         const stateInstitutes = institutesByState[normalizedName] || [];
 
         if (stateInstitutes.length === 0) {
-            return `<strong>${geoName}</strong><br/>No 2025 Overall Data`;
+            return `<strong>${geoName}</strong><br/>No 2025 overall data`;
         }
 
         const sortedInstitutes = stateInstitutes.sort((a, b) => a.rank - b.rank);
         const listHtml = sortedInstitutes
-            // Limiting to top 5 per state in the state tooltip so it doesn't get massive
-            .slice(0, 5) 
+            .slice(0, 5)
             .map(inst => `• ${inst.name} (Rank: ${inst.rank})`)
             .join("<br/>");
-            
+
         const extra = stateInstitutes.length > 5 ? `<br/><em>+ ${stateInstitutes.length - 5} more...</em>` : "";
 
         return `<strong>${geoName}</strong><br/>${listHtml}${extra}`;
     };
 
     return (
-        <div className="IndiaMap" style={{
-            width: "100%", height: "100%", display: "flex", flexDirection: "column",
-            justifyContent: "center", alignItems: "center",
-        }}>
-            <h1>NIRF 2025 Overall Rankings</h1>
-            
-            <div style={{ width: "800px", borderStyle: "double", padding: "10px" }}>
-                <ComposableMap projection="geoMercator" projectionConfig={{ scale: 1000, center: [80, 22] }}>
-                    <ZoomableGroup zoom={1}>
-                        <Geographies geography={geoUrl}>
-                            {({ geographies }) =>
-                                geographies.map((geo) => {
-                                    const stateName = geo.properties.st_nm || geo.properties.state_name;
+        <div className="flex w-full flex-col items-stretch gap-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">
+                NIRF 2025 — overall (map)
+            </h2>
+            <div className="w-full overflow-x-auto rounded-xl border border-gray-800 bg-[#0b0f1a]/50 p-2 sm:p-4">
+                <div className="mx-auto w-full min-w-[280px] max-w-[900px]">
+                    <ComposableMap
+                        projection="geoMercator"
+                        projectionConfig={{ scale: 1000, center: [80, 22] }}
+                        className="h-auto w-full [&_svg]:block [&_svg]:max-h-[min(55vh,520px)] [&_svg]:w-full"
+                    >
+                        <ZoomableGroup zoom={1}>
+                            <Geographies geography={geoUrl}>
+                                {({ geographies }) =>
+                                    geographies.map((geo) => {
+                                        const stateName = geo.properties.st_nm || geo.properties.state_name;
+                                        return (
+                                            <Geography
+                                                key={geo.rsmKey}
+                                                geography={geo}
+                                                data-tooltip-id="map-tooltip"
+                                                data-tooltip-html={getStateTooltip(stateName)}
+                                                style={{
+                                                    default: { fill: "#374151", stroke: "#1f2937", strokeWidth: 0.5, outline: "none" },
+                                                    hover: { fill: "#0891b2", outline: "none", cursor: "pointer" },
+                                                    pressed: { fill: "#0e7490", outline: "none" }
+                                                }}
+                                            />
+                                        );
+                                    })
+                                }
+                            </Geographies>
+
+                            {allInstitutes.map((inst, index) => {
+                                if (inst.longitude && inst.latitude) {
                                     return (
-                                        <Geography
-                                            key={geo.rsmKey}
-                                            geography={geo}
-                                            data-tooltip-id="map-tooltip"
-                                            data-tooltip-html={getStateTooltip(stateName)} 
-                                            style={{
-                                                default: { fill: "#D6D6DA", stroke: "#FFFFFF", strokeWidth: 0.5, outline: "none" },
-                                                hover: { fill: "#F53", outline: "none", cursor: "pointer" },
-                                                pressed: { fill: "#E42", outline: "none" }
-                                            }}
-                                        />
-                                    );
-                                })
-                            }
-                        </Geographies>
-                        
-                        {/* Markers for individual colleges */}
-                        {allInstitutes.map((inst, index) => {
-                            if (inst.longitude && inst.latitude) {
-                                return (
-                                    <Marker 
-                                        key={inst.id || index} 
-                                        coordinates={[inst.longitude, inst.latitude]}
-                                    >
-                                        <circle 
-                                            r={3} 
-                                            fill="#002244" 
-                                            stroke="#ffffff" 
-                                            strokeWidth={1}
-                                            data-tooltip-id="map-tooltip"
-                                            // Individual College Tooltip
-                                            data-tooltip-html={`
-                                                <div style="text-align: center;">
+                                        <Marker
+                                            key={inst.id || index}
+                                            coordinates={[inst.longitude, inst.latitude]}
+                                        >
+                                            <circle
+                                                r={3}
+                                                fill="#22d3ee"
+                                                stroke="#0b0f1a"
+                                                strokeWidth={1}
+                                                data-tooltip-id="map-tooltip"
+                                                data-tooltip-html={`
+                                                <div style="text-align: left;">
                                                     <strong>${inst.name}</strong><br/>
                                                     Rank: ${inst.rank} | Score: ${inst.total}<br/>
                                                     City: ${inst.city}
                                                 </div>
                                             `}
-                                            style={{ cursor: "pointer", outline: "none" }}
-                                        />
-                                    </Marker>
-                                );
-                            }
-                            return null;
-                        })}
-                    </ZoomableGroup>
-                </ComposableMap>
+                                                style={{ cursor: "pointer", outline: "none" }}
+                                            />
+                                        </Marker>
+                                    );
+                                }
+                                return null;
+                            })}
+                        </ZoomableGroup>
+                    </ComposableMap>
+                </div>
             </div>
-            
-            {/* Global Tooltip component handling both states and markers */}
-            <Tooltip id="map-tooltip" />
+            <Tooltip id="map-tooltip" className="!max-w-xs !text-left" />
         </div>
     );
 }

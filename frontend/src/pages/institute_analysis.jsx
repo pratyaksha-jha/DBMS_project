@@ -3,7 +3,9 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip , Legend } from 'chart.js';
 
 import { PieChart, Pie, Cell, ResponsiveContainer,Tooltip as RechartsTooltip } from 'recharts';
-import SearchableSelect from '../components/SearchableSelect'
+import SearchableSelect from '../components/SearchableSelect';
+import { API_BASE } from '../lib/api';
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 
@@ -153,10 +155,8 @@ const Piechart = ({ data }) => {
 export default function InstituteAnalysis() {
     const [institutes,setInstitutes]=useState([]);
     const [domains,setDomains]=useState([]);
-    const [financialYear,setFinancialYear]=useState('2025-2024');
     const [institute, setInstitute] = useState("");
     const [domain, setDomain] = useState("");
-    const [chartData, setChartData] = useState(null);
     const [years, setYears] = useState([]);
     const [ranks, setRanks] = useState([]);
     const [year, setYear] = useState("");
@@ -167,6 +167,7 @@ export default function InstituteAnalysis() {
         { name: 'Library', value: piedata?.library || 0 },
         { name: 'New equipment', value: piedata?.equipment || 0 },
         { name: 'Engineering workshops', value: piedata?.workshops || 0 },
+        { name: 'Studios', value: piedata?.studios || 0 },
         { name: 'Other capital assets', value: piedata?.capital_assets || 0 },
         { name: 'Salaries', value: piedata?.salaries || 0 },
         { name: 'Maintenance', value: piedata?.maintenance || 0 },
@@ -208,7 +209,7 @@ export default function InstituteAnalysis() {
     
     useEffect(() => {
         const fetchDomains = async () => {
-            const res = await fetch("http://127.0.0.1:8000/institute_analysis/domains");
+            const res = await fetch(`${API_BASE}/institute_analysis/domains`);
             const data = await res.json();
             setDomains(data.domains);
         };
@@ -221,7 +222,7 @@ export default function InstituteAnalysis() {
 
         const fetchInstitutes = async () => {
             const res = await fetch(
-                `http://127.0.0.1:8000/institute_analysis/institutes?domain=${domain}`
+                `${API_BASE}/institute_analysis/institutes?domain=${encodeURIComponent(domain)}`
             );
             const data = await res.json();
             setInstitutes(data.institutes);
@@ -249,7 +250,7 @@ export default function InstituteAnalysis() {
             domain: domain
             }).toString();
             try {
-                const response = await fetch(`http://127.0.0.1:8000/institute_analysis/rank_trend?${queryParams}`, {
+                const response = await fetch(`${API_BASE}/institute_analysis/rank_trend?${queryParams}`, {
                     method: "GET",
                     headers: {
                         "Accept": "application/json",
@@ -286,7 +287,7 @@ export default function InstituteAnalysis() {
             year:year
             }).toString();
             try {
-                const response = await fetch(`http://127.0.0.1:8000/institute_analysis/rank_trend/parameters?${queryParams}`, {
+                const response = await fetch(`${API_BASE}/institute_analysis/rank_trend/parameters?${queryParams}`, {
                     method: "GET",
                     headers: {
                         "Accept": "application/json",
@@ -298,12 +299,8 @@ export default function InstituteAnalysis() {
                 const data = await response.json();
                 
                 
-                setParameters(data.parameters);
-
-
-                if (data.years && data.years.length > 0) {
-                    setYear(data.years[0]);
-                }
+                const empty = { tlr: 0, rpc: 0, go: 0, oi: 0, pr: 0, score: 0 };
+                setParameters(data.parameters && typeof data.parameters === 'object' ? data.parameters : empty);
             } catch (error) {
                 console.error("Error fetching parameters data:", error);
             }
@@ -322,7 +319,7 @@ export default function InstituteAnalysis() {
             }).toString();
 
             try {
-                const response = await fetch(`http://127.0.0.1:8000/institute_analysis/budget?${queryParams}`, {
+                const response = await fetch(`${API_BASE}/institute_analysis/budget?${queryParams}`, {
                     method: "GET",
                     headers: {
                         "Accept": "application/json",
@@ -350,13 +347,14 @@ export default function InstituteAnalysis() {
     }, [institute, domain, finyear]); 
 
     return (
-        <div w-full className="bg-[#0b0f1a] text-gray-100 min-h-screen p-8 flex flex-col items-center">
-        {/* Header Section */}
+        <div className="flex w-full flex-col items-center bg-[#0b0f1a] px-4 py-8 text-gray-100 sm:px-8">
         <header className="mb-10 text-center">
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Institute Level Analysis
+            Institute level analysis
             </h1>
-            
+            <p className="mt-3 max-w-xl text-sm text-gray-400">
+              Rank trends, NIRF parameter scores, and budget breakdown for a chosen institute.
+            </p>
         </header>
 
         <div className="w-full max-w-4xl flex flex-col gap-8">
@@ -438,21 +436,25 @@ export default function InstituteAnalysis() {
             </div>
 
             {/* Pie Chart Card (Placed Directly Below) */}
-            <div className="bg-[#111827] border border-gray-800 p-8 rounded-2xl shadow-xl">
-                <div className="flex flex-col items-center">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-8 self-start">Institute Budget Distribution</h2>
+            <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl sm:p-8">
+                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4 border-b border-gray-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">Institute budget distribution</h2>
+                <div className="min-w-[200px] sm:max-w-xs">
+                <span className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Financial year</span>
                 <SearchableSelect 
-                        options={["2023-24","2022-23","2021-22"] || []} 
+                        options={["2023-24", "2022-23", "2021-22"]} 
                         value={finyear} 
                         onChange={setFinYear} 
-                        placeholder="Select Year" 
+                        placeholder="Select year" 
                         />
-                   
-                <div className="w-full h-[350px]">
+                </div>
+                </div>
+                <div className="h-[350px] w-full">
                     <Piechart data={data}/>
                 </div>
-                <p className="text-[11px] text-gray-500 mt-6 text-center max-w-md">
-                    The distribution above reflects the contribution of each expenditure to the total institute budget.
+                <p className="max-w-md text-center text-[11px] text-gray-500">
+                    Share of each expenditure category in the institute budget for the selected year.
                 </p>
                 </div>
             </div>
