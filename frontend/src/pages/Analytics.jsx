@@ -103,6 +103,17 @@ function Analytics() {
       .catch(() => setGraphData([]));
   }, [domainKey, graphYear]);
 
+// console log to check where the error is coming from
+
+  // useEffect(() => {
+  //   fetch(`${API}/graph?domain=${domain.toLowerCase()}&year=${graphYear}`)
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       console.log("Fetched Graph Data:", data);
+  //       setGraphData(data);
+  //     });
+  // }, [domain, graphYear]);
+
   const growth = rankChange.filter((i) => i.change > 0).slice(0, 5);
   const drop = rankChange.filter((i) => i.change < 0).slice(0, 5);
 
