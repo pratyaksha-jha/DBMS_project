@@ -41,9 +41,10 @@ def get_domains():
     }
 
 @router.get("/institute_analysis/institutes")
-def get_institutes(domain):
+def get_institutes(domain: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+    d = (domain or "").strip()
 
     institutes = cursor.execute(
         """
@@ -65,6 +66,8 @@ def get_ranks(institute: str, domain: str):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+    inst = (institute or "").strip()
+    dom = (domain or "").strip()
 
     years = [2025, 2024, 2023, 2022, 2021]
     ranks = []
@@ -78,7 +81,7 @@ def get_ranks(institute: str, domain: str):
             AND rankings.domain = ?
             AND rankings.year = ?
         """
-        result = cursor.execute(query, (institute, domain, year)).fetchone()
+        result = cursor.execute(query, (inst, dom, year)).fetchone()
 
         ranks.append(result[0] if result else None)
 
@@ -110,8 +113,9 @@ def get_params(institute: str, domain: str, year: int):
                   AND rankings.year=?
                   AND rankings.domain=?
             """
-            
-            result = cursor.execute(query, (institute, year, domain,year,domain)).fetchone()
+            inst = (institute or "").strip()
+            dom = (domain or "").strip()
+            result = cursor.execute(query, (inst, year, dom, year, dom)).fetchone()
             
             
             if result:
@@ -143,8 +147,9 @@ def get_budget(fin_year:str,name:str,domain:str):
                   AND institutes.name=?
                   
             """
-            
-            result = cursor.execute(query, (fin_year,domain,name)).fetchone()
+            nm = (name or "").strip()
+            dom = (domain or "").strip()
+            result = cursor.execute(query, (fin_year, dom, nm)).fetchone()
             
             
             if result:

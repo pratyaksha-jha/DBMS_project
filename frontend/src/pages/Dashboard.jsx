@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IndiaMap from '../components/IndiaMap';
 
@@ -112,54 +112,16 @@ const stats = [
   { value: '36', label: 'States & UTs Covered' },
 ];
 
-const insightsItems = [
-  {
-    label: 'Institute Wise',
-    path: '/insights/institute',
-    icon: (
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-           style={{ width: 14, height: 14 }}>
-        <rect x="2" y="2" width="5" height="5" rx="1" />
-        <rect x="9" y="2" width="5" height="5" rx="1" />
-        <rect x="2" y="9" width="5" height="5" rx="1" />
-        <rect x="9" y="9" width="5" height="5" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Overall',
-    path: '/insights/overall',
-    icon: (
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
-           style={{ width: 14, height: 14 }}>
-        <circle cx="8" cy="8" r="6" />
-        <path d="M2 8h12M8 2a9 9 0 0 1 0 12M8 2a9 9 0 0 0 0 12" />
-      </svg>
-    ),
-  },
-];
-
 /* ══════════════════════════════════════════════════════════════
    MAIN COMPONENT
 ══════════════════════════════════════════════════════════════ */
 export default function Dashboard() {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
-  const [insightsOpen, setInsightsOpen] = useState(false);
-  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80);
     return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
-        setInsightsOpen(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   return (
@@ -183,39 +145,10 @@ export default function Dashboard() {
         </div>
 
         <div style={S.navLinks}>
-          <NavBtn label="Home"     onClick={() => navigate('/')} />
+          <NavBtn label="Home" onClick={() => navigate('/')} />
           <NavBtn label="About Us" onClick={() => navigate('/about')} />
-
-          {/* Insights dropdown */}
-          <div ref={dropdownRef} style={{ position: 'relative' }}>
-            <button
-              style={{
-                ...S.navBtn,
-                color: insightsOpen ? '#f5a623' : 'rgba(255,255,255,0.85)',
-                background: insightsOpen ? 'rgba(245,166,35,0.1)' : 'transparent',
-                display: 'flex', alignItems: 'center', gap: 5,
-              }}
-              onClick={() => setInsightsOpen(o => !o)}
-            >
-              Insights
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2"
-                   style={{ width: 10, height: 10, transition: 'transform 0.2s',
-                            transform: insightsOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                <path d="M2 4l4 4 4-4" />
-              </svg>
-            </button>
-
-            {insightsOpen && (
-              <div style={S.dropdown}>
-                <div style={S.dropdownCaret} />
-                {insightsItems.map((item, i) => (
-                  <DropdownItem key={i} item={item} isLast={i === insightsItems.length - 1}
-                    onClick={() => { setInsightsOpen(false); navigate(item.path); }} />
-                ))}
-              </div>
-            )}
-          </div>
-
+          <NavBtn label="Institute analysis" onClick={() => navigate('/institute_analysis')} />
+          <NavBtn label="Overall analysis" onClick={() => navigate('/overall_analysis')} />
           <NavBtn label="IITG" onClick={() => navigate('/iitg')} />
         </div>
       </nav>
@@ -283,7 +216,7 @@ export default function Dashboard() {
 
       {/* ── Footer ── */}
       <footer style={S.footer}>
-        © 2025 National Institutional Ranking Framework · Ministry of Education, Govt. of India
+        © 2026 National Institutional Ranking Framework · Ministry of Education, Govt. of India
       </footer>
     </div>
   );
@@ -297,29 +230,6 @@ function NavBtn({ label, onClick }) {
       style={{ ...S.navBtn, color: hov ? '#f5a623' : 'rgba(255,255,255,0.85)' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       {label}
-    </button>
-  );
-}
-
-/* ── Dropdown item ── */
-function DropdownItem({ item, isLast, onClick }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <button
-      style={{
-        ...S.ddItem,
-        background: hov ? 'rgba(245,166,35,0.09)' : 'transparent',
-        color: hov ? '#f5a623' : 'rgba(255,255,255,0.82)',
-        borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.05)',
-      }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      onClick={onClick}
-    >
-      <span style={{ opacity: hov ? 1 : 0.55, display: 'flex', alignItems: 'center',
-                     transition: 'opacity 0.15s' }}>
-        {item.icon}
-      </span>
-      {item.label}
     </button>
   );
 }
@@ -422,32 +332,14 @@ const S = {
     letterSpacing: '0.16em', textTransform: 'uppercase', lineHeight: 1.4, fontWeight: 600,
   },
   navLinks: {
-    display: 'flex', gap: 2, alignItems: 'center', flexShrink: 0,
+    display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', flexShrink: 0,
+    justifyContent: 'flex-end', maxWidth: 'min(100%, 720px)',
   },
   navBtn: {
     background: 'none', border: 'none', cursor: 'pointer',
     fontSize: 13.5, fontWeight: 500, letterSpacing: '0.01em',
     padding: '7px 16px', borderRadius: 6,
     transition: 'color 0.18s, background 0.18s', fontFamily: 'inherit',
-  },
-
-  /* ── Dropdown ── */
-  dropdown: {
-    position: 'absolute', top: 'calc(100% + 12px)', right: 0,
-    background: '#0f2044', border: '1px solid rgba(245,166,35,0.22)',
-    borderRadius: 10, overflow: 'hidden', minWidth: 180,
-    boxShadow: '0 16px 40px rgba(0,0,0,0.4)', zIndex: 200,
-  },
-  dropdownCaret: {
-    position: 'absolute', top: -6, right: 22, width: 10, height: 10,
-    background: '#0f2044', border: '1px solid rgba(245,166,35,0.22)',
-    borderRight: 'none', borderBottom: 'none', transform: 'rotate(45deg)',
-  },
-  ddItem: {
-    width: '100%', background: 'transparent', border: 'none', cursor: 'pointer',
-    fontSize: 13.5, fontWeight: 500, padding: '12px 18px',
-    display: 'flex', alignItems: 'center', gap: 10,
-    transition: 'background 0.15s, color 0.15s', fontFamily: 'inherit', textAlign: 'left',
   },
 
   /* ── Hero ── */

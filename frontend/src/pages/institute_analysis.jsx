@@ -26,9 +26,10 @@ const LineChart = ({ years, ranks }) => {
       {
         data: ranks,
         fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-        pointRadius: 5,
+        borderColor: 'rgb(34, 211, 238)',
+        tension: 0,
+        spanGaps: true,
+        pointRadius: 4,
         pointHoverRadius: 7,
         pointBackgroundColor: (ctx) => {
           const value = ctx.raw;
@@ -225,7 +226,8 @@ export default function InstituteAnalysis() {
                 `${API_BASE}/institute_analysis/institutes?domain=${encodeURIComponent(domain)}`
             );
             const data = await res.json();
-            setInstitutes(data.institutes);
+            const list = (data.institutes || []).filter(Boolean);
+            setInstitutes(list.slice().sort((a, b) => a.localeCompare(b)));
         };
 
         fetchInstitutes();
