@@ -129,5 +129,35 @@ def get_params(institute: str, domain: str, year: int):
 
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
+@app.get("/institute_analysis/budget")
+def get_budget(fin_year:str,name:str,domain:str):
+    try:
 
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT library,equipment,workshops,studios,capital_assets,salaries,maintenance,seminars
+                FROM budget, institutes 
+                WHERE institutes.id = budget.id 
+                  AND budget.fin_year = ?
+                  AND budget.domain =?
+                  AND institutes.name=?
+                  
+            """
+            
+            result = cursor.execute(query, (fin_year,domain,name)).fetchone()
+            
+            
+            if result:
+                return {"parameters": dict(result)}
+            else:
+                return {"parameters": None}
 
+    except sqlite3.Error as e:
+       
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

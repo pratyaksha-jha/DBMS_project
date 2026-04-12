@@ -1,7 +1,8 @@
 import React,{useState,useEffect} from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip , Legend } from 'chart.js';
+
+import { PieChart, Pie, Cell, ResponsiveContainer,Tooltip as RechartsTooltip } from 'recharts';
 import SearchableSelect from '../components/SearchableSelect'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -65,38 +66,90 @@ const LineChart = ({ years, ranks }) => {
   return <Line data={data} options={options} />;
 };
 
-const data = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
-];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-const Piechart = () => (
-  <ResponsiveContainer width="100%" height={400}>
-    <PieChart>
-      <Pie
-        data={data}
-        cx="50%"
-        cy="50%"
-        innerRadius={0} 
-        outerRadius={80}
-        fill="#8884d8"
-        paddingAngle={5}
-        dataKey="value"
-      >
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-      <Legend />
-    </PieChart>
-  </ResponsiveContainer>
-);
 
+
+
+
+// ==========================================
+// 2. UPGRADED PIE (DONUT) CHART COMPONENT
+// ==========================================
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6666', '#4CAF50']; 
+
+// 1. New Custom Label: Draws lines outside the pie and stacks text neatly
+const renderCustomizedLabel = ({ cx, cy, x, y, name, value, percent, textAnchor }) => {
+  // Hide labels for very tiny slices (under 2%) to prevent text overlap
+  if (percent < 0.02) return null; 
+
+  return (
+    <g>
+      <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central">
+        {/* Top line: Category Name (Gray) */}
+        <tspan x={x} dy="-0.5em" fill="#9ca3af" fontSize="10px" className="font-medium tracking-wide">
+          {name}
+        </tspan>
+        {/* Bottom line: Currency Amount + Percentage (Cyan) */}
+        <tspan x={x} dy="1.4em" fill="#22d3ee" fontSize="12px" className="font-bold">
+          ₹ {value.toLocaleString('en-IN')} ({(percent * 100).toFixed(0)}%)
+        </tspan>
+      </text>
+    </g>
+  );
+};
+
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#1f2937] border border-gray-700 p-3 rounded-lg shadow-2xl">
+        <p className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1">
+            {payload[0].name}
+        </p>
+        <p className="text-white font-mono text-sm">
+            ₹ {payload[0].value.toLocaleString('en-IN')}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const Piechart = ({ data }) => {
+  const hasData = data && data.some(item => item.value > 0);
+
+  if (!hasData) {
+      return (
+          <div className="flex items-center justify-center h-[350px] w-full border border-dashed border-gray-700 rounded-xl">
+              <p className="text-gray-500 text-sm">No budget data available for this selection</p>
+          </div>
+      );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%" 
+          innerRadius={50} // Shrunk slightly to leave room for outer text
+          outerRadius={80} // Shrunk slightly to leave room for outer text
+          fill="#8884d8"
+          paddingAngle={4} 
+          dataKey="value"
+          labelLine={{ stroke: '#4b5563', strokeWidth: 1 }} // Adds the subtle gray connecting lines
+          label={renderCustomizedLabel} // Applies our new outer labels
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity outline-none"/>
+          ))}
+        </Pie>
+        <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
+        {/* Removed the Legend here, because the labels now show the names clearly! */}
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
 export default function InstituteAnalysis() {
     const [institutes,setInstitutes]=useState([]);
     const [domains,setDomains]=useState([]);
@@ -108,7 +161,17 @@ export default function InstituteAnalysis() {
     const [ranks, setRanks] = useState([]);
     const [year, setYear] = useState("");
     const [parameters,setParameters]=useState({"tlr":0,"rpc":0,"go":0,"oi":0,"pr":0,"score":0})
-    
+    const [piedata,setPiedata]=useState({});
+    const [finyear,setFinYear]=useState("2023-24");
+    const data = [
+        { name: 'Library', value: piedata?.library || 0 },
+        { name: 'New equipment', value: piedata?.equipment || 0 },
+        { name: 'Engineering workshops', value: piedata?.workshops || 0 },
+        { name: 'Other capital assets', value: piedata?.capital_assets || 0 },
+        { name: 'Salaries', value: piedata?.salaries || 0 },
+        { name: 'Maintenance', value: piedata?.maintenance || 0 },
+        { name: 'Seminars/Conferences', value: piedata?.seminars || 0 },
+    ].filter(item => item.value > 0);
     const param=[{
         "name":"TLR",
         "value":parameters["tlr"],
@@ -247,8 +310,47 @@ export default function InstituteAnalysis() {
         
     };
 
+    useEffect(() => {
+        const fetchPieData = async () => {
+            if (!institute || !domain || !finyear) return;
+
+            
+            const queryParams = new URLSearchParams({
+                name: institute, 
+                domain: domain,
+                fin_year: finyear 
+            }).toString();
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/institute_analysis/budget?${queryParams}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    }
+                });
+
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                const result = await response.json();
+                
+                
+                if (result.parameters) {
+                    setPiedata(result.parameters);
+                } else {
+                    setPiedata({});
+                }
+                
+            } catch (error) {
+                console.error("Error fetching budget data:", error);
+                setPiedata({});
+            }
+        };
+
+        fetchPieData();
+    }, [institute, domain, finyear]); 
+
     return (
-        <div className="bg-[#0b0f1a] text-gray-100 min-h-screen p-8 flex flex-col items-center">
+        <div w-full className="bg-[#0b0f1a] text-gray-100 min-h-screen p-8 flex flex-col items-center">
         {/* Header Section */}
         <header className="mb-10 text-center">
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
@@ -338,12 +440,19 @@ export default function InstituteAnalysis() {
             {/* Pie Chart Card (Placed Directly Below) */}
             <div className="bg-[#111827] border border-gray-800 p-8 rounded-2xl shadow-xl">
                 <div className="flex flex-col items-center">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-8 self-start">Score Distribution</h2>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-8 self-start">Institute Budget Distribution</h2>
+                <SearchableSelect 
+                        options={["2023-24","2022-23","2021-22"] || []} 
+                        value={finyear} 
+                        onChange={setFinYear} 
+                        placeholder="Select Year" 
+                        />
+                   
                 <div className="w-full h-[350px]">
-                    <Piechart />
+                    <Piechart data={data}/>
                 </div>
                 <p className="text-[11px] text-gray-500 mt-6 text-center max-w-md">
-                    The distribution above reflects the weighted contribution of each NIRF parameter to the total institutional score.
+                    The distribution above reflects the contribution of each expenditure to the total institute budget.
                 </p>
                 </div>
             </div>
