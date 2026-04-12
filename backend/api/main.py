@@ -92,5 +92,42 @@ def get_ranks(institute: str, domain: str):
         "ranks": ranks
     }
 
+from fastapi import HTTPException
+import sqlite3
+
+@app.get("/institute_analysis/rank_trend/parameters")
+def get_params(institute: str, domain: str, year: int):
+    try:
+
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT tlr, rpc, pr, go, oi, score 
+                FROM parameters, institutes ,rankings
+                WHERE institutes.id = parameters.id AND rankings.id=institutes.id
+                  AND institutes.name = ? 
+                  AND parameters.year = ? 
+                  AND parameters.domain = ?
+                  AND rankings.year=?
+                  AND rankings.domain=?
+            """
+            
+            result = cursor.execute(query, (institute, year, domain,year,domain)).fetchone()
+            
+            
+            if result:
+                return {"parameters": dict(result)}
+            else:
+                return {"parameters": None}
+
+    except sqlite3.Error as e:
+       
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 
 

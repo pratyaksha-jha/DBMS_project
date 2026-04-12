@@ -107,8 +107,42 @@ export default function InstituteAnalysis() {
     const [years, setYears] = useState([]);
     const [ranks, setRanks] = useState([]);
     const [year, setYear] = useState("");
+    const [parameters,setParameters]=useState({"tlr":0,"rpc":0,"go":0,"oi":0,"pr":0,"score":0})
     
+    const param=[{
+        "name":"TLR",
+        "value":parameters["tlr"],
+        "def":"Teaching,Learning and resources"
+    },
+    {
+        "name":"RPC",
+        "value":parameters["rpc"],
+        "def":"Research,patents and citations",
+    },
+    {
+        "name":"GO",
+        "value":parameters["go"],
+        "def":"Growth and outcome",
+    },
+    {
+        "name":"OI",
+        "value":parameters["oi"],
+        "def":"Outreach and inclusivity",
+    },
+    {
+        "name":"PR",
+        "value":parameters["pr"],
+        "def":"Peer perception",
+    },
+    {
+        "name":"Total score",
+        "value":parameters["score"],
+        "def":"Total score(This decides the rank)",
+    }
 
+    ];
+
+    
     useEffect(() => {
         const fetchDomains = async () => {
             const res = await fetch("http://127.0.0.1:8000/institute_analysis/domains");
@@ -167,11 +201,48 @@ export default function InstituteAnalysis() {
                 setYears([...data.years].reverse());
                 setRanks([...data.ranks].reverse());
 
+
                 if (data.years && data.years.length > 0) {
                     setYear(data.years[0]);
                 }
             } catch (error) {
                 console.error("Error fetching rank data:", error);
+            }
+        
+    };
+
+    useEffect(()=>{
+        fetchParams();
+    },[institute,domain,year]);
+
+    const fetchParams=async()=>{
+        
+        const queryParams = new URLSearchParams({
+            institute: institute,
+            domain: domain,
+            year:year
+            }).toString();
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/institute_analysis/rank_trend/parameters?${queryParams}`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    }
+                });
+
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                const data = await response.json();
+                
+                
+                setParameters(data.parameters);
+
+
+                if (data.years && data.years.length > 0) {
+                    setYear(data.years[0]);
+                }
+            } catch (error) {
+                console.error("Error fetching parameters data:", error);
             }
         
     };
@@ -183,7 +254,7 @@ export default function InstituteAnalysis() {
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Institute Level Analysis
             </h1>
-            <p className="text-gray-400 mt-2">Comprehensive performance metrics and trend analysis</p>
+            
         </header>
 
         <div className="w-full max-w-4xl flex flex-col gap-8">
@@ -192,7 +263,7 @@ export default function InstituteAnalysis() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Control Card */}
             <div className="lg:col-span-1 bg-[#111827] border border-gray-800 p-6 rounded-2xl shadow-xl h-fit">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-6">Configuration</h2>
+                
                 <form onSubmit={fetchData} className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase">Domain</label>
@@ -203,7 +274,7 @@ export default function InstituteAnalysis() {
                     <SearchableSelect options={institutes} value={institute} onChange={setInstitute} placeholder="Select Institute" />
                 </div>
                 <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-900/20 mt-2">
-                    Generate Report
+                    Get results
                 </button>
                 </form>
             </div>
@@ -217,7 +288,7 @@ export default function InstituteAnalysis() {
             </div>
             </div>
 
-            {/* Lower Section: Data Stack (Table then Pie Chart) */}
+            
             <div className="flex flex-col gap-8">
             
             {/* Parameters Table Card */}
@@ -242,12 +313,22 @@ export default function InstituteAnalysis() {
                         <th className="px-6 py-4 font-semibold">Definition</th>
                     </tr>
                     </thead>
+                    
                     <tbody className="divide-y divide-gray-800">
-                    <tr className="hover:bg-gray-800/40 transition-colors group">
-                        <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors">TLR</td>
-                        <td className="px-6 py-4 text-center font-mono text-cyan-400 text-lg">34.00</td>
-                        <td className="px-6 py-4 text-sm text-gray-400">Teaching, Learning & Resources</td>
-                    </tr>
+                    {param.map((p, index) => (
+                        <tr key={index} className="hover:bg-gray-800/40 transition-colors group">
+                            <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors">
+                                {p.name}
+                            </td>
+                            <td className="px-6 py-4 text-center font-mono text-cyan-400 text-lg">
+                                {p.value}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-400">
+                                {p.def}
+                            </td>
+                        </tr>
+                    ))}
+                    
                     {/* Additional rows here */}
                     </tbody>
                 </table>
