@@ -7,6 +7,7 @@ function SearchableSelect({ options = [], value, onChange, placeholder }) {
   const [dropdownStyle, setDropdownStyle] = useState({});
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
+  const repositionTimeoutRef = useRef(null);
 
   const filtered = (options || []).filter(o =>
     String(o).toLowerCase().includes(search.toLowerCase())
@@ -16,10 +17,15 @@ function SearchableSelect({ options = [], value, onChange, placeholder }) {
   const updateDropdownPosition = () => {
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
+      // Check if there's enough space below, otherwise show above
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const shouldShowAbove = spaceBelow < 320 && spaceAbove > 320;
+
       setDropdownStyle({
         position: 'fixed',
         left: rect.left,
-        top: rect.bottom + 4,
+        top: shouldShowAbove ? rect.top - 304 : rect.bottom + 4,
         width: rect.width,
         zIndex: 99999,
         background: '#1f2937',
@@ -27,6 +33,7 @@ function SearchableSelect({ options = [], value, onChange, placeholder }) {
         borderRadius: 8,
         boxShadow: '0 10px 25px -5px rgba(0,0,0,0.6)',
         overflow: 'hidden',
+        pointerEvents: 'auto',
       });
     }
   };
@@ -34,19 +41,36 @@ function SearchableSelect({ options = [], value, onChange, placeholder }) {
   useEffect(() => {
     if (isOpen) {
       updateDropdownPosition();
-      inputRef.current?.focus();
+      // Use setTimeout to ensure the input is focused after rendering
+      const focusTimeout = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
+      return () => clearTimeout(focusTimeout);
     }
   }, [isOpen]);
 
-  // Reposition on scroll or resize
+  // Reposition on scroll or resize (with debounce to prevent flickering)
   useEffect(() => {
     if (!isOpen) return;
-    const handler = () => updateDropdownPosition();
+
+    const handler = () => {
+      if (repositionTimeoutRef.current) {
+        clearTimeout(repositionTimeoutRef.current);
+      }
+      repositionTimeoutRef.current = setTimeout(() => {
+        updateDropdownPosition();
+      }, 50);
+    };
+
     window.addEventListener('scroll', handler, true);
     window.addEventListener('resize', handler);
+
     return () => {
       window.removeEventListener('scroll', handler, true);
       window.removeEventListener('resize', handler);
+      if (repositionTimeoutRef.current) {
+        clearTimeout(repositionTimeoutRef.current);
+      }
     };
   }, [isOpen]);
 
@@ -61,9 +85,11 @@ function SearchableSelect({ options = [], value, onChange, placeholder }) {
         setSearch('');
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handler);
+      return () => document.removeEventListener('mousedown', handler);
+    }
+  }, [isOpen]);
 
   const dropdown = isOpen
     ? ReactDOM.createPortal(

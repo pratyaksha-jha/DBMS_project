@@ -397,7 +397,7 @@ export default function InstituteAnalysis() {
             <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center">
                 <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">NIRF Parameter Scores</h2>
-                <span className="text-xs font-mono text-gray-500">Current Year:
+                <span className="text-xs font-mono text-gray-500">Year:
                     <SearchableSelect 
                         options={years || []} 
                         value={year} 

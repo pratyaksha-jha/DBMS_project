@@ -4,7 +4,7 @@ import sqlite3
 # CONNECT DATABASES
 
 
-raw_conn = sqlite3.connect("../scraper/nirf.db")
+raw_conn = sqlite3.connect("./nirf.db")
 raw_cursor = raw_conn.cursor()
 
 clean_conn = sqlite3.connect("../data/clean_nirf.db")
@@ -18,7 +18,7 @@ clean_cursor = clean_conn.cursor()
 clean_cursor.execute("""
 CREATE TABLE IF NOT EXISTS institutes (
     id TEXT PRIMARY KEY,
-    name TEXT UNIQUE,
+    name TEXT ,
     city TEXT,
     state TEXT,
     latitude REAL,
@@ -84,18 +84,18 @@ for row in rows:
     # INSERT INTO INSTITUTES
     
 
-    if name not in institute_map:
-        clean_cursor.execute("""
-        INSERT OR IGNORE INTO institutes (id, name, city, state, latitude, longitude)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, (id,name, city, state, lat, lon))
+    
+    clean_cursor.execute("""
+    INSERT OR IGNORE INTO institutes (id, name, city, state, latitude, longitude)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (id,name, city, state, lat, lon))
 
         # clean_cursor.execute("""
         # SELECT id FROM institutes WHERE name = ?
         # """, (name,))
         # inst_id = clean_cursor.fetchone()[0]
 
-        institute_map[name] = id
+    #institute_map[name] = id
     # else:
     #     inst_id = institute_map[name]
 
