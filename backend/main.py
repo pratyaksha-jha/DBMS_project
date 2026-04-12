@@ -1,62 +1,44 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import sqlite3
-import os
+from database.queries import (
+    get_new_institutes,
+    get_rank_change,
+    get_consistent_performers,
+    get_top_five,
+    get_graph_data
+)
 
 app = FastAPI()
 
-# Allow frontend to access this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Temporarily allow all for debugging
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-def get_db_connection():
-    # This specifically targets backend/database/nirf.db
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(base_dir, "database", "nirf.db")
-    
-    print(f"[*] Looking for database at: {db_path}") # Debug log
-    
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
+# Optional root route
+@app.get("/")
+def home():
+    return {"message": "Backend running 🚀"}
 
-@app.get("/api/nirf-data")
-def get_nirf_data():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Using LIKE to ignore case and accidental spaces in your DB
-        cursor.execute("""
-            SELECT * FROM rankings
-            WHERE year = '2025' AND domain LIKE '%overall%'
-        """)
-        
-        rows = cursor.fetchall()
-        conn.close()
+@app.get("/api/new")
+def api_new_institutes(domain: str):
+    return get_new_institutes(domain.strip().lower())
 
-        data = []
-        for row in rows:
-            inst = dict(row)
-            
-            # Ensure coordinates are safely parsed to floats
-            try:
-                inst['latitude'] = float(inst['latitude']) if inst['latitude'] else None
-                inst['longitude'] = float(inst['longitude']) if inst['longitude'] else None
-            except (ValueError, TypeError):
-                inst['latitude'] = None
-                inst['longitude'] = None
-                
-            data.append(inst)
-            
-        print(f"[*] Successfully fetched {len(data)} institutes for 2025.") # Debug log
-        return data
-        
-    except Exception as e:
-        print(f"[!] Error: {str(e)}")
-        return {"error": str(e)}
+@app.get("/api/rank-change")
+def api_rank_change(domain: str):
+    return get_rank_change(domain.strip().lower())
+
+@app.get("/api/consistent")
+def api_consistent(domain: str):
+    return get_consistent_performers(domain.strip().lower())
+
+@app.get("/api/top-five")
+def api_top_five(domain: str, year: int):
+    return get_top_five(domain.strip().lower(), year)
+
+@app.get("/api/graph")
+def api_graph(domain: str, year: int):
+    return get_graph_data(domain.strip().lower(), year)
