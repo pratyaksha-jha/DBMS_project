@@ -141,3 +141,6 @@ python budget_transform.py
 
 Output:
 Adds budget table to clean_nirf.db
+
+12 march
+Completed institute level analysis part - added rank graph, parameter scores for all the 5 years along withtheir definition and pie cahrt depicting the expenditures of the institute budget for the last three financial years
