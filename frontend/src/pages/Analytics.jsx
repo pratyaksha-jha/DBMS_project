@@ -98,7 +98,13 @@ function Analytics() {
     fetch(`${API}/graph?domain=${encodeURIComponent(domainKey)}&year=${graphYear}`)
       .then((res) => res.json())
       .then((rows) => {
-        setGraphData(Array.isArray(rows) ? rows : []);
+        const data = Array.isArray(rows) ? rows : [];
+        //log fetched data
+        console.log(`Fetched Graph Data for Year: ${graphYear} | Total Rows: ${data.length}`);
+        if (data.length > 0) {
+          console.log("Sample Data Entry (Checking for Year):", data[0]);
+        }
+        setGraphData(data);
       })
       .catch(() => setGraphData([]));
   }, [domainKey, graphYear]);
@@ -122,7 +128,7 @@ function Analytics() {
       .filter((r) => r != null && r.rank != null && Number(r.rank) >= 1)
       .map((r) => ({ ...r, rank: Number(r.rank) }))
       .sort((a, b) => a.rank - b.rank);
-    return rows.filter((r) => r.rank <= TOP_RANK_LIMIT).slice(0, TOP_RANK_LIMIT);
+    return rows.filter((r) => r.rank <= TOP_RANK_LIMIT);
   }, [graphData]);
 
   const rankTicks = useMemo(
