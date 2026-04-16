@@ -14,7 +14,6 @@ const LineChart = ({ years, ranks }) => {
 
   const validRanks = ranks.filter(r => r !== null);
   
-  
   if (validRanks.length === 0) return <p className="text-gray-400">No ranking data found</p>;
 
   const minRank = Math.min(...validRanks);
@@ -68,11 +67,6 @@ const LineChart = ({ years, ranks }) => {
 
   return <Line data={data} options={options} />;
 };
-
-
-
-
-
 
 
 // ==========================================
@@ -153,9 +147,11 @@ const Piechart = ({ data }) => {
     </ResponsiveContainer>
   );
 };
+
 export default function InstituteAnalysis() {
     const [institutes,setInstitutes]=useState([]);
     const [domains,setDomains]=useState([]);
+    const [expandedRow, setExpandedRow] = useState(null);
     const [institute, setInstitute] = useState("");
     const [domain, setDomain] = useState("");
     const [years, setYears] = useState([]);
@@ -164,6 +160,7 @@ export default function InstituteAnalysis() {
     const [parameters,setParameters]=useState({"tlr":0,"rpc":0,"go":0,"oi":0,"pr":0,"score":0})
     const [piedata,setPiedata]=useState({});
     const [finyear,setFinYear]=useState("2023-24");
+    
     const data = [
         { name: 'Library', value: piedata?.library || 0 },
         { name: 'New equipment', value: piedata?.equipment || 0 },
@@ -174,37 +171,68 @@ export default function InstituteAnalysis() {
         { name: 'Maintenance', value: piedata?.maintenance || 0 },
         { name: 'Seminars/Conferences', value: piedata?.seminars || 0 },
     ].filter(item => item.value > 0);
-    const param=[{
-        "name":"TLR",
-        "value":parameters["tlr"],
-        "def":"Teaching,Learning and resources"
-    },
-    {
-        "name":"RPC",
-        "value":parameters["rpc"],
-        "def":"Research,patents and citations",
-    },
-    {
-        "name":"GO",
-        "value":parameters["go"],
-        "def":"Growth and outcome",
-    },
-    {
-        "name":"OI",
-        "value":parameters["oi"],
-        "def":"Outreach and inclusivity",
-    },
-    {
-        "name":"PR",
-        "value":parameters["pr"],
-        "def":"Peer perception",
-    },
-    {
-        "name":"Total score",
-        "value":parameters["score"],
-        "def":"Total score(This decides the rank)",
-    }
-
+    
+    const param = [
+        {
+            "name": "TLR",
+            "value": parameters["tlr"],
+            "def": "Teaching, Learning and resources",
+            "desc": [
+                "Evaluates the core teaching environment, student strength, and faculty-student ratio.",
+                "Measures financial resource utilization and the footprint of online education.",
+                "Assesses implementation of multiple entry/exit options and regional language courses."
+            ]
+        },
+        {
+            "name": "RPC",
+            "value": parameters["rpc"],
+            "def": "Research, patents and citations",
+            "desc": [
+                "Assesses academic output through the quantity and quality of publications and citations.",
+                "Evaluates the number of patents that have been published and granted over three years.",
+                "Measures the footprint of professional practice via research funding and consultancy earnings."
+            ]
+        },
+        {
+            "name": "GO",
+            "value": parameters["go"],
+            "def": "Growth and outcome",
+            "desc": [
+                "Measures the percentage of students passing university exams within the stipulated time.",
+                "Incorporates the average number of Ph.D. students successfully graduated.",
+                "Focuses heavily on overall student success and degree completion rates."
+            ]
+        },
+        {
+            "name": "OI",
+            "value": parameters["oi"],
+            "def": "Outreach and inclusivity",
+            "desc": [
+                "Examines diversity by tracking women representation among students and faculty.",
+                "Measures the percentage of students enrolled from other states and countries.",
+                "Evaluates inclusivity through tuition fee reimbursements and physical accessibility facilities."
+            ]
+        },
+        {
+            "name": "PR",
+            "value": parameters["pr"],
+            "def": "Peer perception",
+            "desc": [
+                "Captures overall institutional reputation based entirely on large-scale surveys.",
+                "Reflects the preference for graduates among academic peers and reputed employers.",
+                "Provides a comprehensive view of standing in the broader academic and corporate community."
+            ]
+        },
+        {
+            "name": "Total score",
+            "value": parameters["score"],
+            "def": "Total score (This decides the rank)",
+            "desc": [
+                "Computed based on the specific weights allotted to each of the five broad heads.",
+                "Takes a maximum possible value of 100.",
+                "Institutions are directly rank-ordered based on this final aggregated score."
+            ]
+        }
     ];
 
     
@@ -263,10 +291,8 @@ export default function InstituteAnalysis() {
 
                 const data = await response.json();
                 
-                
                 setYears([...data.years].reverse());
                 setRanks([...data.ranks].reverse());
-
 
                 if (data.years && data.years.length > 0) {
                     setYear(data.years[0]);
@@ -300,7 +326,6 @@ export default function InstituteAnalysis() {
 
                 const data = await response.json();
                 
-                
                 const empty = { tlr: 0, rpc: 0, go: 0, oi: 0, pr: 0, score: 0 };
                 setParameters(data.parameters && typeof data.parameters === 'object' ? data.parameters : empty);
             } catch (error) {
@@ -313,7 +338,6 @@ export default function InstituteAnalysis() {
         const fetchPieData = async () => {
             if (!institute || !domain || !finyear) return;
 
-            
             const queryParams = new URLSearchParams({
                 name: institute, 
                 domain: domain,
@@ -331,7 +355,6 @@ export default function InstituteAnalysis() {
                 if (!response.ok) throw new Error("Network response was not ok");
 
                 const result = await response.json();
-                
                 
                 if (result.parameters) {
                     setPiedata(result.parameters);
@@ -410,29 +433,56 @@ export default function InstituteAnalysis() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                     <tr className="bg-gray-800/30 text-gray-400 text-[11px] uppercase tracking-wider">
+                        {/* Modified Table Headers */}
                         <th className="px-6 py-4 font-semibold">Parameter</th>
                         <th className="px-6 py-4 font-semibold text-center">Value</th>
-                        <th className="px-6 py-4 font-semibold">Definition</th>
                     </tr>
                     </thead>
                     
                     <tbody className="divide-y divide-gray-800">
-                    {param.map((p, index) => (
-                        <tr key={index} className="hover:bg-gray-800/40 transition-colors group">
-                            <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors">
-                                {p.name}
-                            </td>
-                            <td className="px-6 py-4 text-center font-mono text-cyan-400 text-lg">
-                                {p.value}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-400">
-                                {p.def}
-                            </td>
-                        </tr>
-                    ))}
-                    
-                    {/* Additional rows here */}
-                    </tbody>
+    {param.map((p, index) => (
+        <React.Fragment key={index}>
+            {/* Main Clickable Row */}
+            <tr 
+                className="hover:bg-gray-800/40 transition-colors group cursor-pointer"
+                onClick={() => setExpandedRow(expandedRow === index ? null : index)}
+            >
+                <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-3">
+                    {/* Animated Chevron */}
+                    <svg 
+                        className={`w-4 h-4 shrink-0 transition-transform duration-200 ${expandedRow === index ? 'rotate-180 text-cyan-400' : 'text-gray-500'}`} 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <div className="flex flex-col">
+                        <span>{p.name}</span>
+                        <span className="text-[11px] font-normal text-gray-400 group-hover:text-cyan-600 transition-colors mt-0.5">{p.def}</span>
+                    </div>
+                </td>
+                <td className="px-6 py-4 text-center font-mono text-cyan-400 text-lg">
+                    {p.value}
+                </td>
+            </tr>
+            
+            {/* Expanded Content Row */}
+            {expandedRow === index && (
+                <tr className="bg-[#0f1523] border-t-0">
+                    {/* Adjusted colSpan from 3 to 2 */}
+                    <td colSpan="2" className="px-6 py-4">
+                        <ul className="list-disc list-outside text-xs text-gray-400 space-y-1.5 ml-10 max-w-2xl">
+                            {p.desc.map((line, i) => (
+                                <li key={i} className="leading-relaxed">{line}</li>
+                            ))}
+                        </ul>
+                    </td>
+                </tr>
+            )}
+        </React.Fragment>
+    ))}
+</tbody>
                 </table>
                 </div>
             </div>
