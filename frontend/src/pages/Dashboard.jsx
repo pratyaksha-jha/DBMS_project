@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IndiaMap from '../components/IndiaMap';
+import { API } from "../services/api";
 
 /* ─── Campus hero image (IIT/IISc aerial, Unsplash free-to-use) ─── */
 const HERO_IMG =
@@ -146,6 +147,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
+  const [data, setData] = useState([]);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -161,6 +163,15 @@ export default function Dashboard() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  useEffect(() => {
+  API.get("/api/nirf-data")
+    .then(res => {
+      console.log(res.data); // check in console
+      setData(res.data);
+    })
+    .catch(err => console.error(err));
+}, []);
 
   return (
     <div style={S.root}>
@@ -275,7 +286,7 @@ export default function Dashboard() {
             <h2 style={S.secTitle}>Institution Map</h2>
           </div>
           <div style={S.mapCard}>
-            <IndiaMap />
+            <IndiaMap data={data} />
           </div>
         </section>
 

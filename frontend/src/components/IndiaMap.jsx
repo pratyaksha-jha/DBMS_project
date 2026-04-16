@@ -11,35 +11,29 @@ import "react-tooltip/dist/react-tooltip.css";
 
 const geoUrl = "/india.json";
 
-function IndiaMap() {
+function IndiaMap({ data }) {
     const [institutesByState, setInstitutesByState] = useState({});
-    const [allInstitutes, setAllInstitutes] = useState([]);
+    const allInstitutes = data || [];
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/nirf-data") 
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.error("Backend error:", data.error);
-                    return;
-                }
-                
-                console.log("Data received from backend:", data); // DEBUG: Check your browser console
-                setAllInstitutes(data);
-                
-                const grouped = data.reduce((acc, institute) => {
-                    const stateName = institute.state ? institute.state.trim().toLowerCase() : "unknown";
-                    if (!acc[stateName]) {
-                        acc[stateName] = [];
-                    }
-                    acc[stateName].push(institute);
-                    return acc;
-                }, {});
-                
-                setInstitutesByState(grouped);
-            })
-            .catch((error) => console.error("Error fetching NIRF data:", error));
-    }, []);
+        if (!data) return;
+
+        const grouped = data.reduce((acc, institute) => {
+            const stateName = institute.state
+                ? institute.state.trim().toLowerCase()
+                : "unknown";
+
+            if (!acc[stateName]) {
+                acc[stateName] = [];
+            }
+
+            acc[stateName].push(institute);
+            return acc;
+        }, {});
+
+        setInstitutesByState(grouped);
+    }, [data]);
+        
 
     const getStateTooltip = (geoName) => {
         if (!geoName) return "Unknown State";
