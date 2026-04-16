@@ -10,11 +10,11 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 
 const LineChart = ({ years, ranks }) => {
-  if (!ranks || ranks.length === 0) return <p className="text-gray-400">No data available</p>;
+  if (!ranks || ranks.length === 0) return <p className="text-gray-400 text-sm">No data available</p>;
 
   const validRanks = ranks.filter(r => r !== null);
   
-  if (validRanks.length === 0) return <p className="text-gray-400">No ranking data found</p>;
+  if (validRanks.length === 0) return <p className="text-gray-400 text-sm">No ranking data found</p>;
 
   const minRank = Math.min(...validRanks);
   const maxRank = Math.max(...validRanks);
@@ -46,21 +46,26 @@ const LineChart = ({ years, ranks }) => {
     plugins: {
       legend: { display: false },
       tooltip: {
+        bodyFont: { size: 14 },
+        titleFont: { size: 14 },
         callbacks: {
           label: (context) => `Rank: ${context.raw}`,
         },
       },
-      title: { display: true, text: 'Rank Trend' },
+      title: { display: true, text: 'Rank Trend', font: { size: 16 } },
     },
     scales: {
-      x: { title: { display: true, text: 'Year' } }, 
+      x: { 
+        title: { display: true, text: 'Year', font: { size: 14 } },
+        ticks: { font: { size: 12 } }
+      }, 
       y: {
         reverse: true,
         beginAtZero: false,
         suggestedMin: minRank - 2,
         suggestedMax: maxRank + 2,
-        ticks: { stepSize: 1 },
-        title: { display: true, text: 'NIRF Rank' }, 
+        ticks: { stepSize: 1, font: { size: 12 } },
+        title: { display: true, text: 'NIRF Rank', font: { size: 14 } }, 
       },
     },
   };
@@ -74,20 +79,18 @@ const LineChart = ({ years, ranks }) => {
 // ==========================================
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF6666', '#4CAF50']; 
 
-// 1. New Custom Label: Draws lines outside the pie and stacks text neatly
 const renderCustomizedLabel = ({ cx, cy, x, y, name, value, percent, textAnchor }) => {
-  // Hide labels for very tiny slices (under 2%) to prevent text overlap
   if (percent < 0.02) return null; 
 
   return (
     <g>
       <text x={x} y={y} textAnchor={textAnchor} dominantBaseline="central">
-        {/* Top line: Category Name (Gray) */}
-        <tspan x={x} dy="-0.5em" fill="#9ca3af" fontSize="10px" className="font-medium tracking-wide">
+        {/* Category Name*/}
+        <tspan x={x} dy="-0.5em" fill="#9ca3af" fontSize="12px" className="font-medium tracking-wide">
           {name}
         </tspan>
-        {/* Bottom line: Currency Amount + Percentage (Cyan) */}
-        <tspan x={x} dy="1.4em" fill="#22d3ee" fontSize="12px" className="font-bold">
+        {/*Currency Amount + Percentage*/}
+        <tspan x={x} dy="1.4em" fill="#22d3ee" fontSize="14px" className="font-bold">
           ₹ {value.toLocaleString('en-IN')} ({(percent * 100).toFixed(0)}%)
         </tspan>
       </text>
@@ -98,11 +101,11 @@ const renderCustomizedLabel = ({ cx, cy, x, y, name, value, percent, textAnchor 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#1f2937] border border-gray-700 p-3 rounded-lg shadow-2xl">
-        <p className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1">
+      <div className="bg-[#1f2937] border border-gray-700 p-4 rounded-lg shadow-2xl">
+        <p className="text-cyan-400 font-bold text-sm uppercase tracking-wider mb-1">
             {payload[0].name}
         </p>
-        <p className="text-white font-mono text-sm">
+        <p className="text-white font-mono text-base">
             ₹ {payload[0].value.toLocaleString('en-IN')}
         </p>
       </div>
@@ -117,7 +120,7 @@ const Piechart = ({ data }) => {
   if (!hasData) {
       return (
           <div className="flex items-center justify-center h-[350px] w-full border border-dashed border-gray-700 rounded-xl">
-              <p className="text-gray-500 text-sm">No budget data available for this selection</p>
+              <p className="text-gray-400 text-base">No budget data available for this selection</p>
           </div>
       );
   }
@@ -129,20 +132,19 @@ const Piechart = ({ data }) => {
           data={data}
           cx="50%"
           cy="50%" 
-          innerRadius={50} // Shrunk slightly to leave room for outer text
-          outerRadius={80} // Shrunk slightly to leave room for outer text
+          innerRadius={50} 
+          outerRadius={80} 
           fill="#8884d8"
           paddingAngle={4} 
           dataKey="value"
-          labelLine={{ stroke: '#4b5563', strokeWidth: 1 }} // Adds the subtle gray connecting lines
-          label={renderCustomizedLabel} // Applies our new outer labels
+          labelLine={{ stroke: '#4b5563', strokeWidth: 1 }} 
+          label={renderCustomizedLabel} 
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="hover:opacity-80 transition-opacity outline-none"/>
           ))}
         </Pie>
         <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-        {/* Removed the Legend here, because the labels now show the names clearly! */}
       </PieChart>
     </ResponsiveContainer>
   );
@@ -235,7 +237,6 @@ export default function InstituteAnalysis() {
         }
     ];
 
-    
     useEffect(() => {
         const fetchDomains = async () => {
             const res = await fetch(`${API_BASE}/institute_analysis/domains`);
@@ -374,10 +375,12 @@ export default function InstituteAnalysis() {
     return (
         <div className="flex w-full flex-col items-center bg-[#0b0f1a] px-4 py-8 text-gray-100 sm:px-8">
         <header className="mb-10 text-center">
-            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            {/* Header Title*/}
+            <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Institute level analysis
             </h1>
-            <p className="mt-3 max-w-xl text-sm text-gray-400">
+            {/* Header Description */}
+            <p className="mt-4 max-w-xl text-base text-gray-400">
               Rank trends, NIRF parameter scores, and budget breakdown for a chosen institute.
             </p>
         </header>
@@ -391,14 +394,17 @@ export default function InstituteAnalysis() {
                 
                 <form onSubmit={fetchData} className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase">Domain</label>
+                    {/* Label*/}
+                    <label className="text-xs font-bold text-gray-500 uppercase">Domain</label>
                     <SearchableSelect options={domains} value={domain} onChange={setDomain} placeholder="Select Domain" />
                 </div>
                 <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase">Institute</label>
+                    {/*Label */}
+                    <label className="text-xs font-bold text-gray-500 uppercase">Institute</label>
                     <SearchableSelect options={institutes} value={institute} onChange={setInstitute} placeholder="Select Institute" />
                 </div>
-                <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-900/20 mt-2">
+                {/* Button*/}
+                <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-lg py-3 rounded-xl transition-all shadow-lg shadow-cyan-900/20 mt-2">
                     Get results
                 </button>
                 </form>
@@ -406,7 +412,8 @@ export default function InstituteAnalysis() {
 
             {/* Trend Chart Card */}
             <div className="lg:col-span-2 bg-[#111827] border border-gray-800 p-6 rounded-2xl shadow-xl">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">Ranking History</h2>
+                {/* Chart Title*/}
+                <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-500 mb-4">Ranking History</h2>
                 <div className="h-[280px] w-full">
                 <LineChart years={years} ranks={ranks}/>
                 </div>
@@ -419,8 +426,10 @@ export default function InstituteAnalysis() {
             {/* Parameters Table Card */}
             <div className="bg-[#111827] border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
                 <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">NIRF Parameter Scores</h2>
-                <span className="text-xs font-mono text-gray-500">Year:
+                {/*Table Title */}
+                <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-500">NIRF Parameter Scores</h2>
+                {/*Year Label */}
+                <span className="text-sm font-mono text-gray-500 flex items-center gap-2">Year:
                     <SearchableSelect 
                         options={years || []} 
                         value={year} 
@@ -432,57 +441,59 @@ export default function InstituteAnalysis() {
                 <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                    <tr className="bg-gray-800/30 text-gray-400 text-[11px] uppercase tracking-wider">
-                        {/* Modified Table Headers */}
+                    {/* Table Header*/}
+                    <tr className="bg-gray-800/30 text-gray-400 text-sm uppercase tracking-wider">
                         <th className="px-6 py-4 font-semibold">Parameter</th>
                         <th className="px-6 py-4 font-semibold text-center">Value</th>
                     </tr>
                     </thead>
                     
                     <tbody className="divide-y divide-gray-800">
-    {param.map((p, index) => (
-        <React.Fragment key={index}>
-            {/* Main Clickable Row */}
-            <tr 
-                className="hover:bg-gray-800/40 transition-colors group cursor-pointer"
-                onClick={() => setExpandedRow(expandedRow === index ? null : index)}
-            >
-                <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-3">
-                    {/* Animated Chevron */}
-                    <svg 
-                        className={`w-4 h-4 shrink-0 transition-transform duration-200 ${expandedRow === index ? 'rotate-180 text-cyan-400' : 'text-gray-500'}`} 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                    <div className="flex flex-col">
-                        <span>{p.name}</span>
-                        <span className="text-[11px] font-normal text-gray-400 group-hover:text-cyan-600 transition-colors mt-0.5">{p.def}</span>
-                    </div>
-                </td>
-                <td className="px-6 py-4 text-center font-mono text-cyan-400 text-lg">
-                    {p.value}
-                </td>
-            </tr>
-            
-            {/* Expanded Content Row */}
-            {expandedRow === index && (
-                <tr className="bg-[#0f1523] border-t-0">
-                    {/* Adjusted colSpan from 3 to 2 */}
-                    <td colSpan="2" className="px-6 py-4">
-                        <ul className="list-disc list-outside text-xs text-gray-400 space-y-1.5 ml-10 max-w-2xl">
-                            {p.desc.map((line, i) => (
-                                <li key={i} className="leading-relaxed">{line}</li>
-                            ))}
-                        </ul>
-                    </td>
-                </tr>
-            )}
-        </React.Fragment>
-    ))}
-</tbody>
+                    {param.map((p, index) => (
+                        <React.Fragment key={index}>
+                            {/* Main Clickable Row */}
+                            <tr 
+                                className="hover:bg-gray-800/40 transition-colors group cursor-pointer"
+                                onClick={() => setExpandedRow(expandedRow === index ? null : index)}
+                            >
+                                <td className="px-6 py-4 font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-3">
+                                    <svg 
+                                        className={`w-5 h-5 shrink-0 transition-transform duration-200 ${expandedRow === index ? 'rotate-180 text-cyan-400' : 'text-gray-500'}`} 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    <div className="flex flex-col">
+                                        {/*Acronym */}
+                                        <span className="text-lg">{p.name}</span>
+                                        {/* Full Form */}
+                                        <span className="text-sm font-normal text-gray-400 group-hover:text-cyan-600 transition-colors mt-0.5">{p.def}</span>
+                                    </div>
+                                </td>
+                                {/* Value Score */}
+                                <td className="px-6 py-4 text-center font-mono text-cyan-400 text-2xl">
+                                    {p.value}
+                                </td>
+                            </tr>
+                            
+                            {/* Expanded Content Row */}
+                            {expandedRow === index && (
+                                <tr className="bg-[#0f1523] border-t-0">
+                                    <td colSpan="2" className="px-6 py-4">
+                                        {/* Increased Dropdown List Font */}
+                                        <ul className="list-disc list-outside text-sm text-gray-300 space-y-2 ml-10 max-w-2xl">
+                                            {p.desc.map((line, i) => (
+                                                <li key={i} className="leading-relaxed">{line}</li>
+                                            ))}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            )}
+                        </React.Fragment>
+                    ))}
+                    </tbody>
                 </table>
                 </div>
             </div>
@@ -491,9 +502,11 @@ export default function InstituteAnalysis() {
             <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl sm:p-8">
                 <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4 border-b border-gray-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">Institute budget distribution</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-cyan-500">Institute budget distribution</h2>
+                
                 <div className="min-w-[200px] sm:max-w-xs">
-                <span className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Financial year</span>
+                <span className="mb-2 block text-xs font-bold uppercase text-gray-500">Financial year</span>
+                
                 <SearchableSelect 
                         options={["2023-24", "2022-23", "2021-22"]} 
                         value={finyear} 
@@ -501,14 +514,16 @@ export default function InstituteAnalysis() {
                         placeholder="Select year" 
                         />
                 </div>
+                
                 </div>
+                
                 <div className="h-[350px] w-full">
                     <Piechart data={data}/>
                 </div>
-                <p className="max-w-md text-center text-[11px] text-gray-500">
+                </div>
+                <p className="text-sm text-gray-400">
                     Share of each expenditure category in the institute budget for the selected year.
                 </p>
-                </div>
             </div>
 
             </div>
