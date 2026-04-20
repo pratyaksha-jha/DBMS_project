@@ -385,14 +385,14 @@ export default function InstituteAnalysis() {
             </p>
         </header>
 
-        <div className="w-full max-w-4xl flex flex-col gap-8">
+        <div className="w-full max-w-6xl flex flex-col gap-8">
             
             {/* Upper Section: Controls & Trend Chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-8">
             {/* Control Card */}
-            <div className="lg:col-span-1 bg-[#111827] border border-gray-800 p-6 rounded-2xl shadow-xl h-fit">
+            <div className=" bg-[#111827] border border-gray-800 p-6 rounded-2xl shadow-xl h-fit">
                 
-                <form onSubmit={fetchData} className="flex flex-col gap-6">
+                <form onSubmit={fetchData} className="grid grid-cols-1 gap-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                 <div className="flex flex-col gap-2">
                     {/* Label*/}
                     <label className="text-xs font-bold text-gray-500 uppercase">Domain</label>
@@ -404,7 +404,7 @@ export default function InstituteAnalysis() {
                     <SearchableSelect options={institutes} value={institute} onChange={setInstitute} placeholder="Select Institute" />
                 </div>
                 {/* Button*/}
-                <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-lg py-3 rounded-xl transition-all shadow-lg shadow-cyan-900/20 mt-2">
+                <button type="submit" className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-all shadow-lg shadow-cyan-900/20 mb-0.5">
                     Get results
                 </button>
                 </form>
