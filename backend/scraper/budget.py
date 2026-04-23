@@ -312,8 +312,8 @@ columns = [
 df = pd.DataFrame(all_data, columns=columns)
 
 os.makedirs("data", exist_ok=True)
-df.to_csv("data/nirf_full_data.csv", index=False)
+df.to_csv("data/nirf_full_budget_data.csv", index=False)
 
-print("\n✅ Data saved to CSV and SQLite!")
+print("\nData saved to CSV and SQLite!")
 
 conn.close()

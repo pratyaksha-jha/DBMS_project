@@ -164,6 +164,78 @@ def get_budget(fin_year:str,name:str,domain:str):
 
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
+@router.get("/institute_analysis/research")
+def get_budget(finyear:str,name:str,domain:str):
+    try:
+
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT sponsored_projects,funding_agencies,research_amount
+                FROM budget, institutes 
+                WHERE institutes.id = budget.id 
+                  AND budget.fin_year = ?
+                  AND budget.domain =?
+                  AND institutes.name=?
+                  
+            """
+            nm = (name or "").strip()
+            dom = (domain or "").strip()
+            fnyr=(finyear or "").strip()
+            result = cursor.execute(query, (fnyr, dom, nm)).fetchone()
+            
+            
+            if result:
+                return {"research": dict(result)}
+            else:
+                return {"research": None}
+
+    except sqlite3.Error as e:
+       
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+@router.get("/institute_analysis/placement")
+def get_budget(finyear:str,name:str,domain:str,program:str):
+    try:
+
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT grad_students,higher_studies,placed_students,median_salary
+                FROM placements, institutes 
+                WHERE institutes.id = placements.id 
+                  AND placements.fin_year = ?
+                  AND placements.domain =?
+                  AND institutes.name=?
+                  AND placements.program =?
+                  
+            """
+            nm = (name or "").strip()
+            dom = (domain or "").strip()
+            fnyr=(finyear or "").strip()
+            pgrm=(program or "").strip()
+            result = cursor.execute(query, (fnyr, dom, nm,pgrm)).fetchone()
+            
+            
+            if result:
+                return {"placement": dict(result)}
+            else:
+                return {"placement": None}
+
+    except sqlite3.Error as e:
+       
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    except Exception as e:
+
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
 #pratyaksha ka backend
 @router.get("/api/nirf-data")
 def get_nirf_map_data():
