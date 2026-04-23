@@ -29,7 +29,10 @@ CREATE TABLE IF NOT EXISTS nirf_data (
     seminars REAL,
 
     research_amount REAL,
-    consultancy_amount REAL
+    consultancy_amount REAL,
+
+    sponsored_projects REAL,
+    funding_agencies REAL
 )
 """)
 conn.commit()
@@ -167,6 +170,47 @@ def research_consult(pdf):
 
     return research, consultancy
 
+def sponsored_research(pdf):
+    data = {
+        "projects": None,
+        "agencies": None,
+        "amount": None
+    }
+
+    for page in pdf.pages:
+        text = page.extract_text()
+
+        if not text or "sponsored research details" not in text.lower():
+            continue
+
+        for table in page.extract_tables() or []:
+            for row in table:
+                if not row:
+                    continue
+
+                row_text = " ".join([str(c).lower() for c in row if c])
+
+                values = [
+                    c.split("(")[0].strip().replace(",", "")
+                    for c in row if c and any(x.isdigit() for x in c)
+                ]
+
+                if len(values) != 3:
+                    continue
+
+                if "total no. of sponsored projects" in row_text:
+                    data["projects"] = values
+
+                elif "total no. of funding agencies" in row_text:
+                    data["agencies"] = values
+
+                elif "total amount received" in row_text:
+                    data["amount"] = values
+
+        break
+
+    return data
+
 # PROCESS EACH INSTITUTE
 def process_institute(row, year, domain):
     cols = row.find_all("td")
@@ -190,6 +234,7 @@ def process_institute(row, year, domain):
         cap = capital_exp(pdf)
         op = oper_exp(pdf)
         res, con = research_consult(pdf)
+        sr = sponsored_research(pdf)
 
         years_list = ["2023-24", "2022-23", "2021-22"]
 
@@ -203,11 +248,16 @@ def process_institute(row, year, domain):
                 float(cap["workshops"][i]) if cap["workshops"] else None,
                 float(cap["studios"][i]) if cap["studios"] else None,
                 float(cap["capital_assets"][i]) if cap["capital_assets"] else None,
+
                 float(op["salaries"][i]) if op["salaries"] else None,
                 float(op["maintenance"][i]) if op["maintenance"] else None,
                 float(op["seminars"][i]) if op["seminars"] else None,
+
                 float(res[i]) if res else None,
-                float(con[i]) if con else None
+                float(con[i]) if con else None,
+
+                float(sr["projects"][i]) if sr["projects"] and len(sr["projects"]) > i else None,
+                float(sr["agencies"][i]) if sr["agencies"] and len(sr["agencies"]) > i else None
             )
             results.append(row_data)
 
@@ -245,7 +295,7 @@ for year in years:
 
 # BULK INSERT
 cursor.executemany("""
-INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """, all_data)
 
 conn.commit()
@@ -255,7 +305,8 @@ columns = [
     "insti_ID", "nirf_year", "domain", "fin_year",
     "library", "equipment", "workshops", "studios", "capital_assets",
     "salaries", "maintenance", "seminars",
-    "research_amount", "consultancy_amount"
+    "research_amount", "consultancy_amount",
+    "sponsored_projects", "funding_agencies"
 ]
 
 df = pd.DataFrame(all_data, columns=columns)
