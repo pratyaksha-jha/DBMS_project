@@ -2,20 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IndiaMap from '../components/IndiaMap';
 
-/* ─── Campus hero image (IIT/IISc aerial, Unsplash free-to-use) ─── */
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1920&q=80';
+/* hero image */
+import heroImage from '../assets/logo_image2.jpg';
 
 /* ─── Domain data with inline SVG icons ─── */
 const domains = [
   {
     name: 'Overall',
-    path: '/overall',
     description: 'All institutions ranked across every discipline',
     icon: (
-      /* Globe with latitude/longitude lines */
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6"
-           style={{ width: 44, height: 44 }}>
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ width: 44, height: 44 }}>
         <circle cx="24" cy="24" r="19" />
         <ellipse cx="24" cy="24" rx="10" ry="19" />
         <line x1="5" y1="24" x2="43" y2="24" />
@@ -27,25 +23,18 @@ const domains = [
   },
   {
     name: 'Engineering',
-    path: '/engineering',
     description: 'Top technical & engineering colleges in India',
     icon: (
-      /* Circuit board */
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6"
-           style={{ width: 44, height: 44 }}>
-        {/* Board outline */}
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ width: 44, height: 44 }}>
         <rect x="6" y="6" width="36" height="36" rx="4" />
-        {/* Chips */}
         <rect x="14" y="14" width="8" height="8" rx="1" />
         <rect x="26" y="14" width="8" height="8" rx="1" />
         <rect x="14" y="26" width="8" height="8" rx="1" />
         <rect x="26" y="26" width="8" height="8" rx="1" />
-        {/* Traces */}
         <line x1="22" y1="18" x2="26" y2="18" />
         <line x1="22" y1="30" x2="26" y2="30" />
         <line x1="18" y1="22" x2="18" y2="26" />
         <line x1="30" y1="22" x2="30" y2="26" />
-        {/* Edge pins */}
         <line x1="14" y1="6" x2="14" y2="3" /><line x1="22" y1="6" x2="22" y2="3" />
         <line x1="30" y1="6" x2="30" y2="3" />
         <line x1="14" y1="42" x2="14" y2="45" /><line x1="22" y1="42" x2="22" y2="45" />
@@ -56,21 +45,13 @@ const domains = [
   },
   {
     name: 'Research',
-    path: '/research',
     description: 'Institutions leading innovation & discovery',
     icon: (
-      /* Conical flask / Erlenmeyer */
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6"
-           style={{ width: 44, height: 44 }}>
-        {/* Flask body */}
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ width: 44, height: 44 }}>
         <path d="M18 6 L18 22 L8 38 Q6 42 10 42 L38 42 Q42 42 40 38 L30 22 L30 6 Z" />
-        {/* Neck top line */}
         <line x1="15" y1="6" x2="33" y2="6" />
-        {/* Liquid inside */}
-        <path d="M12 34 Q16 30 24 32 Q32 34 36 30 L40 38 Q42 42 38 42 L10 42 Q6 42 8 38 Z"
-              fill="currentColor" opacity="0.15" stroke="none" />
+        <path d="M12 34 Q16 30 24 32 Q32 34 36 30 L40 38 Q42 42 38 42 L10 42 Q6 42 8 38 Z" fill="currentColor" opacity="0.15" stroke="none" />
         <path d="M12 34 Q16 30 24 32 Q32 34 36 30" />
-        {/* Bubbles */}
         <circle cx="20" cy="36" r="1.2" fill="currentColor" />
         <circle cx="28" cy="33" r="1" fill="currentColor" />
       </svg>
@@ -79,24 +60,16 @@ const domains = [
   },
   {
     name: 'Management',
-    path: '/management',
     description: 'Premier business & management institutions',
     icon: (
-      /* Podium / lectern */
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6"
-           style={{ width: 44, height: 44 }}>
-        {/* Podium top */}
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ width: 44, height: 44 }}>
         <path d="M10 16 L24 8 L38 16 L38 34 L10 34 Z" />
-        {/* Front panel */}
         <rect x="14" y="20" width="20" height="10" rx="2" />
-        {/* Microphone stem */}
         <line x1="24" y1="8" x2="24" y2="4" />
         <circle cx="24" cy="3" r="1.5" fill="currentColor" />
-        {/* Base legs */}
         <line x1="16" y1="34" x2="12" y2="44" />
         <line x1="32" y1="34" x2="36" y2="44" />
         <line x1="10" y1="44" x2="38" y2="44" />
-        {/* Panel lines (notes) */}
         <line x1="18" y1="23" x2="30" y2="23" />
         <line x1="18" y1="26" x2="26" y2="26" />
       </svg>
@@ -153,12 +126,9 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {/* ── Hero with campus photo ── */}
+      {/* ── Hero with local campus photo ── */}
       <div style={S.hero}>
-        {/* Real photo layer */}
-        <div style={{ ...S.heroBg,
-          backgroundImage: `url(${HERO_IMG})` }} />
-        {/* Navy gradient overlay */}
+        <div style={{ ...S.heroBg, backgroundImage: `url(${heroImage})` }} />
         <div style={S.heroOverlay} />
 
         <div style={S.heroContent}>
@@ -195,8 +165,7 @@ export default function Dashboard() {
           </div>
           <div style={S.cardGrid}>
             {domains.map((d, i) => (
-              <DomainCard key={i} domain={d} delay={i * 80}
-                          visible={visible} navigate={navigate} />
+              <DomainCard key={i} domain={d} delay={i * 80} visible={visible} navigate={navigate} />
             ))}
           </div>
         </section>
@@ -239,7 +208,8 @@ function DomainCard({ domain, delay, visible, navigate }) {
   const [hov, setHov] = useState(false);
   return (
     <div
-      onClick={() => navigate(domain.path)}
+      // Routes to overall_analysis and passes the chosen category inside the route state
+      onClick={() => navigate('/overall_analysis', { state: { selectedCategory: domain.name } })}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -253,15 +223,13 @@ function DomainCard({ domain, delay, visible, navigate }) {
           : '0 2px 18px rgba(15,31,61,0.07)',
       }}
     >
-      {/* Accent colour strip at top */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 3,
         background: domain.accent, borderRadius: '16px 16px 0 0',
         opacity: hov ? 1 : 0.35, transition: 'opacity 0.25s',
       }} />
 
-      <div style={{ color: hov ? domain.accent : '#0f1f3d',
-                    transition: 'color 0.22s', marginBottom: 6, marginTop: 6 }}>
+      <div style={{ color: hov ? domain.accent : '#0f1f3d', transition: 'color 0.22s', marginBottom: 6, marginTop: 6 }}>
         {domain.icon}
       </div>
 
@@ -272,10 +240,8 @@ function DomainCard({ domain, delay, visible, navigate }) {
         {domain.description}
       </p>
 
-      <div style={{ color: hov ? domain.accent : '#0f1f3d',
-                    transition: 'color 0.22s', marginTop: 8, alignSelf: 'flex-start' }}>
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2"
-             style={{ width: 16, height: 16 }}>
+      <div style={{ color: hov ? domain.accent : '#0f1f3d', transition: 'color 0.22s', marginTop: 8, alignSelf: 'flex-start' }}>
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
           <path d="M4 10h12M10 4l6 6-6 6" />
         </svg>
       </div>
@@ -284,7 +250,7 @@ function DomainCard({ domain, delay, visible, navigate }) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   STYLES  — no maxWidth, no fixed widths that exceed viewport
+   STYLES
 ══════════════════════════════════════════════════════════════ */
 const S = {
   root: {
@@ -298,8 +264,6 @@ const S = {
     padding: 0,
     boxSizing: 'border-box',
   },
-
-  /* ── Navbar ── */
   nav: {
     width: '100%',
     boxSizing: 'border-box',
@@ -314,9 +278,7 @@ const S = {
     padding: '0 40px',
     height: 70,
   },
-  brandGroup: {
-    display: 'flex', alignItems: 'center', gap: 13, flexShrink: 0,
-  },
+  brandGroup: { display: 'flex', alignItems: 'center', gap: 13, flexShrink: 0 },
   brandEmblem: {
     width: 46, height: 46, borderRadius: 11,
     border: '1px solid rgba(245,166,35,0.32)',
@@ -341,8 +303,6 @@ const S = {
     padding: '7px 16px', borderRadius: 6,
     transition: 'color 0.18s, background 0.18s', fontFamily: 'inherit',
   },
-
-  /* ── Hero ── */
   hero: {
     width: '100%',
     boxSizing: 'border-box',
@@ -358,7 +318,7 @@ const S = {
     backgroundSize: 'cover',
     backgroundPosition: 'center 40%',
     backgroundRepeat: 'no-repeat',
-    transform: 'scale(1.03)', // slight zoom-in to avoid edges
+    transform: 'scale(1.03)',
   },
   heroOverlay: {
     position: 'absolute', inset: 0,
@@ -370,7 +330,7 @@ const S = {
     width: '100%', boxSizing: 'border-box',
   },
   heroEyebrow: {
-    fontSize: 13,          /* ← increased from 11 */
+    fontSize: 13,
     fontWeight: 600, letterSpacing: '0.2em',
     textTransform: 'uppercase', color: '#f5a623', margin: '0 0 14px',
   },
@@ -383,8 +343,6 @@ const S = {
     fontSize: 15.5, color: 'rgba(255,255,255,0.65)',
     maxWidth: 560, lineHeight: 1.7, margin: '0 auto',
   },
-
-  /* ── Stat bar ── */
   statBar: {
     width: '100%', boxSizing: 'border-box',
     background: '#0f1f3d',
@@ -403,8 +361,6 @@ const S = {
     fontSize: 10, color: 'rgba(255,255,255,0.42)',
     letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500,
   },
-
-  /* ── Main ── */
   main: {
     width: '100%', boxSizing: 'border-box',
     padding: '52px 40px 44px',
@@ -419,11 +375,9 @@ const S = {
     fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: 0,
     fontFamily: "'Georgia',serif", letterSpacing: '-0.01em',
   },
-
-  /* ── Cards ── */
   cardGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', /* minmax(0,1fr) prevents blowout */
+    gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
     gap: 20,
     width: '100%',
   },
@@ -443,16 +397,12 @@ const S = {
     fontSize: 13, margin: 0, lineHeight: 1.6,
     transition: 'color 0.22s', flex: 1,
   },
-
-  /* ── Map ── */
   mapCard: {
     background: '#fff', borderRadius: 20, padding: '32px',
     boxShadow: '0 2px 20px rgba(15,31,61,0.07)',
     border: '1px solid rgba(15,31,61,0.06)',
     width: '100%', boxSizing: 'border-box',
   },
-
-  /* ── Footer ── */
   footer: {
     width: '100%', boxSizing: 'border-box',
     textAlign: 'center', padding: '22px 40px',

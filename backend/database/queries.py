@@ -96,11 +96,11 @@ def get_graph_data(domain, year):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT r.rank, p.rpc, p.tlr, p.pr, i.name
+        SELECT r.rank, p.rpc, p.tlr, p.pr, i.name, r.year
         FROM rankings r
-        JOIN parameters p ON r.id = p.id
+        JOIN parameters p ON r.id = p.id AND r.year = p.year
         JOIN institutes i ON r.id = i.id
-        WHERE LOWER(r.domain) = ? AND p.year = ?
+        WHERE LOWER(r.domain) = ? AND r.year = ?
         ORDER BY r.rank ASC
     """, (domain, year))
 
