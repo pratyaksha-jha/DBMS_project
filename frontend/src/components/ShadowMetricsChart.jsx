@@ -43,7 +43,7 @@ const ShadowMetricsChart = () => {
         {
           label: "IIT Guwahati",
           data: data.metrics.map((m) => Number(((m.guwahati / m.max) * 100).toFixed(2))),
-          backgroundColor: "rgba(233, 40, 123, 0.95)",
+          backgroundColor: "rgba(227, 237, 240, 0.95)",
           borderColor: "rgb(67, 27, 177)",
           borderWidth: 1,
           borderRadius: 4,

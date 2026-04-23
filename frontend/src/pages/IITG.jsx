@@ -25,6 +25,7 @@ const DOMAINS = [
   { value: "overall", label: "Overall" },
   { value: "engineering", label: "Engineering" },
 ];
+const IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad";
 
 const NIRF_PARAMETERS = [
   {
@@ -128,6 +129,8 @@ const IITGAnalysis = () => {
   const [domain, setDomain] = useState("overall");
   const [chartData, setChartData] = useState(null);
   const [shadowData, setShadowData] = useState(null);
+  const [iitgIithDomain, setIitgIithDomain] = useState("overall");
+  const [iitgIithChartData, setIitgIithChartData] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/shadow_metrics`)
@@ -146,8 +149,7 @@ const IITGAnalysis = () => {
       const list = Array.isArray(data) ? data : [];
       setInstitutes(list);
 
-      const iitHydName = "Indian Institute of Technology Hyderabad";
-      const defaultInstitute = list.includes(iitHydName) ? iitHydName : list[0] ?? "";
+      const defaultInstitute = list.includes(IIT_HYDERABAD_NAME) ? IIT_HYDERABAD_NAME : list[0] ?? "";
       setInstitute(defaultInstitute);
     } catch (err) {
       console.error("Error fetching institutes:", err);
@@ -224,6 +226,61 @@ const IITGAnalysis = () => {
     }
   }, [institute, domain]);
 
+  const fetchIitgVsIithGraph = async (selectedDomain) => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/iitg_iith?domain=${selectedDomain}`
+      );
+      if (!res.ok) {
+        throw new Error(`IITG vs IITH graph API failed: ${res.status}`);
+      }
+      const data = await res.json();
+
+      const rows = (data.years || [])
+        .map((year, idx) => ({
+          year: Number(year),
+          iitg: data.iitg?.[idx] == null ? null : Number(data.iitg[idx]),
+          iith: data.iith?.[idx] == null ? null : Number(data.iith[idx]),
+        }))
+        .filter((row) => row.year >= 2017 && row.year <= 2025);
+
+      setIitgIithChartData({
+        labels: rows.map((r) => String(r.year)),
+        datasets: [
+          {
+            label: "Indian Institute of Technology Guwahati",
+            data: rows.map((r) => r.iitg),
+            borderColor: "#dc2626",
+            backgroundColor: "rgba(220, 38, 38, 0.2)",
+            pointBackgroundColor: "#dc2626",
+            pointRadius: 4,
+            borderWidth: 3,
+            tension: 0.2,
+            spanGaps: true,
+          },
+          {
+            label: "Indian Institute of Technology Hyderabad",
+            data: rows.map((r) => r.iith),
+            borderColor: "#3b82f6",
+            backgroundColor: "rgba(59, 130, 246, 0.2)",
+            pointBackgroundColor: "#3b82f6",
+            pointRadius: 4,
+            borderWidth: 3,
+            tension: 0.2,
+            spanGaps: true,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("Error fetching IITG vs IITH data:", err);
+      setIitgIithChartData(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchIitgVsIithGraph(iitgIithDomain);
+  }, [iitgIithDomain]);
+
   const chartOptions = useMemo(
     () => ({
       responsive: true,
@@ -235,6 +292,34 @@ const IITGAnalysis = () => {
           labels: { usePointStyle: true, padding: 16, color: "#d1d5db" },
         },
         tooltip: { mode: "index", intersect: false },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Year", color: "#d1d5db" },
+          ticks: { color: "#d1d5db" },
+          grid: { color: "rgba(255,255,255,0.1)" },
+        },
+        y: {
+          title: { display: true, text: "NIRF score", color: "#d1d5db" },
+          ticks: { color: "#d1d5db" },
+          grid: { color: "rgba(255,255,255,0.1)" },
+          suggestedMin: 0,
+        },
+      },
+    }),
+    []
+  );
+
+  const iitgIithChartOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          position: "top",
+          labels: { usePointStyle: true, padding: 16, color: "#d1d5db" },
+        },
       },
       scales: {
         x: {
@@ -439,6 +524,43 @@ const IITGAnalysis = () => {
         </section>
 
         <ShadowMetricsChart />
+
+        <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">
+              IITG vs IITH (year-wise)
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase text-gray-500">Domain</span>
+              <div className="rounded-lg border border-gray-700 p-1 bg-gray-900/50">
+                {DOMAINS.map((d) => (
+                  <button
+                    key={d.value}
+                    type="button"
+                    onClick={() => setIitgIithDomain(d.value)}
+                    className={`px-3 py-1 text-xs rounded-md transition ${
+                      iitgIithDomain === d.value
+                        ? "bg-cyan-600 text-white"
+                        : "text-gray-300 hover:bg-gray-700"
+                    }`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="text-sm text-gray-300 mb-4">
+            Direct year-wise comparison between IIT Guwahati and IIT Hyderabad for 2017-2025.
+          </p>
+          <div className="h-[330px] w-full">
+            {iitgIithChartData ? (
+              <Line data={iitgIithChartData} options={iitgIithChartOptions} />
+            ) : (
+              <p className="text-sm text-gray-400">Loading IITG vs IITH plot...</p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

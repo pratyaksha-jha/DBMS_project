@@ -10,7 +10,8 @@ SHADOW_METRICS_JSON = os.path.join(DATA_DIR, "shadow_metrics.json")
 # NIRF full name for IIT Guwahati only. Use exact match — never LIKE "%...guwahati%"
 # (Indian Institute of Information Technology Guwahati is a different institute).
 IIT_GUWAHATI_NAME = "Indian Institute of Technology Guwahati"
-
+IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad"
+IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -198,3 +199,39 @@ def get_shadow_metric_comparison():
     """Load IIT Guwahati vs IIT Hyderabad parameter scores from data/shadow_metrics.json (from ghu.jpg / hyd.jpg snapshots)."""
     with open(SHADOW_METRICS_JSON, encoding="utf-8") as f:
         return json.load(f)
+    
+
+def iitg_iith(domain):
+    conn = get_connection()
+    cursor = conn.cursor()
+    domain_l = domain.strip().lower()
+
+    cursor.execute("""
+        SELECT r.year, r.score
+        FROM ghy_hyd_data_10years r
+        WHERE LOWER(r.name) = LOWER(?)
+        AND LOWER(r.domain) = LOWER(?)
+        ORDER BY r.year
+    """, (IIT_GUWAHATI_NAME, domain_l))
+    iitgrows = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT r.year, r.score
+        FROM ghy_hyd_data_10years r
+        WHERE LOWER(r.name) = LOWER(?)
+        AND LOWER(r.domain) = LOWER(?)
+        ORDER BY r.year
+    """, (IIT_HYDERABAD_NAME, domain_l))
+    iithrows = cursor.fetchall()
+
+    conn.close()
+
+    iitgdata = {row["year"]: row["score"] for row in iitgrows}
+    iithdata = {row["year"]: row["score"] for row in iithrows}
+    years = sorted(set(iitgdata.keys()) | set(iithdata.keys()))
+
+    return {
+        "years": years,
+        "iitg": [iitgdata.get(y, None) for y in years],
+        "iith": [iithdata.get(y, None) for y in years],
+    }

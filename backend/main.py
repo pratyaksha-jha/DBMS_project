@@ -10,6 +10,7 @@ from database.queries import (
     get_graph_data,
     get_shadow_metric_comparison,
     linegraph,
+    iitg_iith,
 )
 
 app = FastAPI()
@@ -59,3 +60,7 @@ def api_line_graph(domain: str, institute: str):
 @app.get("/api/shadow_metrics")
 def api_shadow_metrics():
     return get_shadow_metric_comparison()
+
+@app.get("/api/iitg_iith")
+def api_iitg_iith(domain: str):
+    return iitg_iith(domain.strip().lower())    
