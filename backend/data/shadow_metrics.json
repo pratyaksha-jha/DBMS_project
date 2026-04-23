@@ -1,0 +1,24 @@
+{
+  "title": "IIT Guwahati vs IIT Hyderabad — NIRF parameter scores",
+  "source_files": ["ghu.jpg", "hyd.jpg"],
+  "note": "Values transcribed from reference snapshots in backend/data/",
+  "metrics": [
+    { "id": "SS", "domain": "TLR", "domain_label": "Teaching, Learning & Resources", "max": 20, "guwahati": 17.86, "hyderabad": 12.49 },
+    { "id": "FSR", "domain": "TLR", "domain_label": "Teaching, Learning & Resources", "max": 30, "guwahati": 23.91, "hyderabad": 30.0 },
+    { "id": "FQE", "domain": "TLR", "domain_label": "Teaching, Learning & Resources", "max": 20, "guwahati": 13.51, "hyderabad": 19.83 },
+    { "id": "FRU", "domain": "TLR", "domain_label": "Teaching, Learning & Resources", "max": 30, "guwahati": 18.32, "hyderabad": 25.71 },
+    { "id": "PU", "domain": "RP", "domain_label": "Research and Professional Practice", "max": 35, "guwahati": 28.62, "hyderabad": 25.32 },
+    { "id": "QP", "domain": "RP", "domain_label": "Research and Professional Practice", "max": 40, "guwahati": 28.22, "hyderabad": 23.39 },
+    { "id": "IPR", "domain": "RP", "domain_label": "Research and Professional Practice", "max": 15, "guwahati": 9.0, "hyderabad": 5.0 },
+    { "id": "FPPP", "domain": "RP", "domain_label": "Research and Professional Practice", "max": 10, "guwahati": 7.05, "hyderabad": 7.68 },
+    { "id": "GPH", "domain": "GO", "domain_label": "Graduation Outcomes", "max": 40, "guwahati": 33.43, "hyderabad": 34.25 },
+    { "id": "GUE", "domain": "GO", "domain_label": "Graduation Outcomes", "max": 15, "guwahati": 14.25, "hyderabad": 15.0 },
+    { "id": "MS", "domain": "GO", "domain_label": "Graduation Outcomes", "max": 25, "guwahati": 21.5, "hyderabad": 21.27 },
+    { "id": "GPHD", "domain": "GO", "domain_label": "Graduation Outcomes", "max": 20, "guwahati": 15.5, "hyderabad": 8.69 },
+    { "id": "RD", "domain": "OI", "domain_label": "Outreach and Inclusivity", "max": 30, "guwahati": 23.69, "hyderabad": 17.5 },
+    { "id": "WD", "domain": "OI", "domain_label": "Outreach and Inclusivity", "max": 30, "guwahati": 11.63, "hyderabad": 12.3 },
+    { "id": "ESCS", "domain": "OI", "domain_label": "Outreach and Inclusivity", "max": 20, "guwahati": 6.08, "hyderabad": 4.59 },
+    { "id": "PCS", "domain": "OI", "domain_label": "Outreach and Inclusivity", "max": 20, "guwahati": 20.0, "hyderabad": 20.0 },
+    { "id": "PR", "domain": "PR", "domain_label": "Perception", "max": 100, "guwahati": 52.06, "hyderabad": 61.98 }
+  ]
+}

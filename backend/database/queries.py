@@ -1,8 +1,16 @@
-import sqlite3
+import json
 import os
+import sqlite3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "..", "data", "clean_nirf.db")
+DATA_DIR = os.path.join(BASE_DIR, "..", "data")
+DB_PATH = os.path.join(DATA_DIR, "clean_nirf.db")
+SHADOW_METRICS_JSON = os.path.join(DATA_DIR, "shadow_metrics.json")
+
+# NIRF full name for IIT Guwahati only. Use exact match — never LIKE "%...guwahati%"
+# (Indian Institute of Information Technology Guwahati is a different institute).
+IIT_GUWAHATI_NAME = "Indian Institute of Technology Guwahati"
+
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -88,14 +96,105 @@ def get_graph_data(domain, year):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT r.rank, p.rpc, p.tlr, p.pr, i.name
+        SELECT r.rank, p.rpc, p.tlr, p.pr, i.name, r.year
         FROM rankings r
-        JOIN parameters p ON r.id = p.id
+        JOIN parameters p ON r.id = p.id AND r.year = p.year
         JOIN institutes i ON r.id = i.id
-        WHERE LOWER(r.domain) = ? AND p.year = ?
+        WHERE LOWER(r.domain) = ? AND r.year = ?
         ORDER BY r.rank ASC
     """, (domain, year))
 
     result = [dict(row) for row in cursor.fetchall()]
     conn.close()
-    return result 
+    return result
+
+def list_institutes_excluding_iitg(domain: str, top_n: int | None = None):
+    """All institutes in the domain (2025), excluding IIT Guwahati, optionally limited by rank."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT i.name
+        FROM institutes i
+        JOIN rankings r ON i.id = r.id
+        WHERE r.year = 2025
+        AND LOWER(r.domain) = LOWER(?)
+        AND LOWER(i.name) != LOWER(?)
+        ORDER BY r.rank ASC
+    """
+
+    params: list = [domain, IIT_GUWAHATI_NAME]
+    if top_n is not None and top_n > 0:
+        query += "\nLIMIT ?"
+        params.append(top_n)
+
+    cursor.execute(query, tuple(params))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [row["name"] for row in rows]
+
+
+def linegraph(domain, institute):
+    conn = get_connection()
+    cursor = conn.cursor()
+    domain_l = domain.strip().lower()
+
+    # Query 1: IIT Guwahati for the selected domain
+    cursor.execute("""
+        SELECT r.year, r.score
+        FROM rankings r
+        JOIN institutes i ON r.id = i.id
+        WHERE LOWER(i.name) = LOWER(?)
+        AND LOWER(r.domain) = LOWER(?)
+        ORDER BY r.year
+    """, (IIT_GUWAHATI_NAME, domain_l))
+    iitgrows = cursor.fetchall()
+
+    iitg_used_fallback = False
+    # Some domains may have no IIT Guwahati series in the DB; use Overall so the red line still plots.
+    if not iitgrows and domain_l != "overall":
+        cursor.execute("""
+            SELECT r.year, r.score
+            FROM rankings r
+            JOIN institutes i ON r.id = i.id
+            WHERE LOWER(i.name) = LOWER(?)
+            AND LOWER(r.domain) = 'overall'
+            ORDER BY r.year
+        """, (IIT_GUWAHATI_NAME,))
+        iitgrows = cursor.fetchall()
+        iitg_used_fallback = bool(iitgrows)
+
+    # Query 2: Selected institute (blue line), always for the selected domain
+    cursor.execute("""
+        SELECT r.year, r.score
+        FROM rankings r
+        JOIN institutes i ON r.id = i.id
+        WHERE LOWER(i.name) = LOWER(?)
+        AND LOWER(r.domain) = LOWER(?)
+        ORDER BY r.year
+    """, (institute, domain_l))
+    instrows = cursor.fetchall()
+
+    conn.close()
+
+    # Build year -> score dicts
+    iitgdata = {row["year"]: row["score"] for row in iitgrows}
+    instdata = {row["year"]: row["score"] for row in instrows}
+
+    # Union of all years, sorted
+    years = sorted(set(iitgdata.keys()) | set(instdata.keys()))
+
+    return {
+        "years": years,
+        "iitg": [iitgdata.get(y, None) for y in years],
+        "other": [instdata.get(y, None) for y in years],
+        "iitg_used_fallback": iitg_used_fallback,
+    }
+
+
+def get_shadow_metric_comparison():
+    """Load IIT Guwahati vs IIT Hyderabad parameter scores from data/shadow_metrics.json (from ghu.jpg / hyd.jpg snapshots)."""
+    with open(SHADOW_METRICS_JSON, encoding="utf-8") as f:
+        return json.load(f)

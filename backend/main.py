@@ -5,12 +5,16 @@ from database.queries import (
     get_new_institutes,
     get_rank_change,
     get_consistent_performers,
+    list_institutes_excluding_iitg,
     get_top_five,
-    get_graph_data
+    get_graph_data,
+    get_shadow_metric_comparison,
+    linegraph,
 )
 
 app = FastAPI()
 app.include_router(api_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,10 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Optional root route
 @app.get("/")
 def home():
-    return {"message": "Backend running 🚀"}
+    return {"message": "Backend running "}
 
 @app.get("/api/new")
 def api_new_institutes(domain: str):
@@ -43,3 +46,16 @@ def api_top_five(domain: str, year: int):
 @app.get("/api/graph")
 def api_graph(domain: str, year: int):
     return get_graph_data(domain.strip().lower(), year)
+
+@app.get("/api/institutes")
+def api_institutes(domain: str, top_n: int | None = None):
+    return list_institutes_excluding_iitg(domain.strip().lower(), top_n)
+
+@app.get("/api/line_graph")
+def api_line_graph(domain: str, institute: str):
+    return linegraph(domain.strip().lower(), institute.strip())
+
+
+@app.get("/api/shadow_metrics")
+def api_shadow_metrics():
+    return get_shadow_metric_comparison()
