@@ -305,7 +305,7 @@ const IITGAnalysis = () => {
       <div className="w-full max-w-5xl space-y-8">
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">
-            What NIRF parameters mean
+            NIRF parameters
           </h2>
           <p className="mb-4 text-sm text-gray-300">
             NIRF score is built from five main categories. The table shows the total category
@@ -352,9 +352,7 @@ const IITGAnalysis = () => {
             <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">
               Score trend: IIT Guwahati vs Top 10 peer
             </h2>
-            <p className="mt-2 text-sm text-gray-300">
-              Comparison defaults to IIT Hyderabad and uses only Top 10 peer institutes.
-            </p>
+            
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-5">
             <div>
@@ -383,7 +381,7 @@ const IITGAnalysis = () => {
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
-            Why IIT Guwahati dropped below IIT Hyderabad in 2025
+              Key insights from score trends
           </h2>
           {chartInsights ? (
             <ul className="list-disc pl-6 space-y-2 text-sm text-gray-300">
@@ -408,21 +406,22 @@ const IITGAnalysis = () => {
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
-            What IIT Guwahati can improve next
+            Top improvement areas of IITG
           </h2>
           <p className="mb-4 text-sm text-gray-300">
-            These are the biggest current gaps against IIT Hyderabad (higher gap means stronger
-            immediate opportunity).
+            These are the biggest current gaps against IIT Hyderabad.
+    
           </p>
+          <br></br>
           {improvementAreas.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {improvementAreas.map((item) => (
                 <div key={item.code} className="rounded-xl border border-gray-700 bg-gray-900/40 p-4">
                   <p className="text-sm font-semibold text-cyan-300">
-                    {item.code} ({item.area})
+                    {item.code}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Gap vs IIT Hyderabad: {item.gap.toFixed(2)}% of the parameter maximum
+                    IIT Hyderabad leads by a margin of {item.gap.toFixed(2)}%.
                   </p>
                 </div>
               ))}
@@ -430,11 +429,12 @@ const IITGAnalysis = () => {
           ) : (
             <p className="text-sm text-gray-400">Gap data is loading...</p>
           )}
+          <br></br>
           <ul className="list-disc pl-6 mt-4 space-y-1 text-sm text-gray-300">
-            <li>Strengthen high-impact research quality and citation visibility.</li>
-            <li>Improve faculty quality and sustained research output per faculty member.</li>
-            <li>Increase national/international perception through stronger industry-academic signaling.</li>
-            <li>Set yearly KPI targets aligned to NIRF sub-parameters rather than only final rank.</li>
+            <li>Bridge the gap in FQE by hiring experienced professors with high citation counts and terminal degrees.</li>
+            <li>Improve faculty to student ratio through aggressive department-specific hiring.</li>
+            <li>Increase national reputation by strategically showcasing high-impact industry collaborations and breakthrough research success stories.</li>
+            <li>Focus on better utilization of the financial resources to improve FRU scores.</li>
           </ul>
         </section>
 

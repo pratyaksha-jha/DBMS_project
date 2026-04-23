@@ -1,20 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Chart as ChartJS,
-  LineElement,
+  BarElement,
   CategoryScale,
   LinearScale,
-  PointElement,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
-  LineElement,
+  BarElement,
   CategoryScale,
   LinearScale,
-  PointElement,
   Tooltip,
   Legend
 );
@@ -32,7 +30,7 @@ const ShadowMetricsChart = () => {
   }, []);
 
   const labels = useMemo(
-    () => (data?.metrics || []).map((m) => `${m.domain}-${m.id}`),
+    () => (data?.metrics || []).map((m) => m.id),
     [data]
   );
 
@@ -45,23 +43,26 @@ const ShadowMetricsChart = () => {
         {
           label: "IIT Guwahati",
           data: data.metrics.map((m) => Number(((m.guwahati / m.max) * 100).toFixed(2))),
-          backgroundColor: "rgba(229, 57, 53, 0.1)",
-          borderColor: "#e53935",
-          pointBackgroundColor: "#e53935",
-          borderWidth: 3,
-          tension: 0.25,
-          spanGaps: true,
+          backgroundColor: "rgba(233, 40, 123, 0.95)",
+          borderColor: "rgb(67, 27, 177)",
+          borderWidth: 1,
+          borderRadius: 4,
+          barThickness: 20,
+          maxBarThickness: 20,
+          grouped: false,
+          order: 2,
         },
         {
           label: "IIT Hyderabad",
           data: data.metrics.map((m) => Number(((m.hyderabad / m.max) * 100).toFixed(2))),
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
-          borderColor: "#2196F3",
-          pointBackgroundColor: "#2196F3",
-          borderWidth: 2,
-          borderDash: [5, 4],
-          tension: 0.25,
-          spanGaps: true,
+          backgroundColor: "rgba(59, 130, 246, 0.4)",
+          borderColor: "rgba(96, 165, 250, 0.8)",
+          borderWidth: 1,
+          borderRadius: 4,
+          barThickness: 32,
+          maxBarThickness: 32,
+          grouped: false,
+          order: 1,
         },
       ],
     }
@@ -72,6 +73,7 @@ const ShadowMetricsChart = () => {
   const options = useMemo(
     () => ({
       responsive: true,
+      maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: {
@@ -80,6 +82,11 @@ const ShadowMetricsChart = () => {
         },
         tooltip: {
           callbacks: {
+            title: (items) => {
+              const idx = items?.[0]?.dataIndex ?? 0;
+              const metric = data.metrics[idx];
+              return `${metric.id} (${metric.domain})`;
+            },
             afterLabel: (context) => {
               const metric = data.metrics[context.dataIndex];
               const rawValue =
@@ -94,6 +101,7 @@ const ShadowMetricsChart = () => {
           title: { display: true, text: "Parameter", color: "#d1d5db" },
           ticks: { color: "#d1d5db" },
           grid: { color: "rgba(255,255,255,0.1)" },
+          stacked: false,
         },
         y: {
           beginAtZero: true,
@@ -101,6 +109,7 @@ const ShadowMetricsChart = () => {
           title: { display: true, text: "Score (% of parameter maximum)", color: "#d1d5db" },
           ticks: { color: "#d1d5db" },
           grid: { color: "rgba(255,255,255,0.1)" },
+          stacked: false,
         },
       },
     }),
@@ -117,7 +126,9 @@ const ShadowMetricsChart = () => {
       <p className="text-sm text-gray-300 mb-4">
         Parameter-wise comparison across all NIRF components, normalized by each parameter maximum.
       </p>
-      <Line data={chartData} options={options} />
+      <div className="h-[360px] w-full">
+        <Bar data={chartData} options={options} />
+      </div>
     </div>
   );
 };
