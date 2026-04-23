@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   LineChart,
   Line,
@@ -54,6 +55,9 @@ function TopFiveGrid({ data }) {
 }
 
 function Analytics() {
+  const location = useLocation();
+  const passedCategory = location.state?.selectedCategory;
+
   // Global Filter State
   const [domains, setDomains] = useState([]);
   const [domain, setDomain] = useState('');
@@ -74,7 +78,7 @@ function Analytics() {
 
   const years = [2025, 2024, 2023];
 
-  // Fetch Domains on mount
+  // Fetch Domains on mount and apply Router State
   useEffect(() => {
     const fallback = ['Overall', 'Engineering', 'Management', 'Research'];
     fetch(`${API_BASE}/institute_analysis/domains`)
@@ -83,7 +87,11 @@ function Analytics() {
         const list = (d.domains || []).filter(Boolean).sort((a, b) => a.localeCompare(b));
         const next = list.length ? list : fallback;
         setDomains(next);
+        
         setDomain((prev) => {
+          // 1. If routed from dashboard card, select that specific category
+          if (passedCategory && next.includes(passedCategory)) return passedCategory;
+          // 2. Otherwise default behavior
           if (prev && next.includes(prev)) return prev;
           const overall = next.find((x) => /^overall$/i.test(String(x)));
           return overall || next[0] || '';
@@ -92,11 +100,12 @@ function Analytics() {
       .catch(() => {
         setDomains(fallback);
         setDomain((prev) => {
+          if (passedCategory && fallback.includes(passedCategory)) return passedCategory;
           if (prev && fallback.includes(prev)) return prev;
           return 'Overall';
         });
       });
-  }, []);
+  }, [passedCategory]); // Rerun if the user clicks a different card on the dashboard
 
   const domainKey = domain ? domain.toLowerCase() : null;
 
@@ -272,7 +281,6 @@ function Analytics() {
 
         {/* SECTION 2: YEAR-WISE ANALYSIS */}
         <section>
-          {/* Header & Dropdown neatly aligned */}
           <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-4">
               <div className="h-8 w-1 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
@@ -288,15 +296,11 @@ function Analytics() {
             </div>
           </div>
 
-          {/* Stacked Layout: Top 5 above the Graph */}
           <div className="flex flex-col gap-6">
-            
-            {/* Top 5 for Selected Year - Full Width Horizontal */}
             <Card title={`Top 5 Institutions`} subtitle={`NIRF Rank · ${year}`}>
               <TopFiveGrid data={topFiveYear} />
             </Card>
 
-            {/* Graph - Full Width */}
             <Card title={`Parameter vs Rank (${year})`} subtitle={`Top ${TOP_RANK_LIMIT} ranks · Shaded by bracket`}>
               <div className="mb-4 flex flex-col gap-4 border-b border-gray-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div className="mb-3 flex flex-wrap gap-4 text-[11px] text-gray-400">
