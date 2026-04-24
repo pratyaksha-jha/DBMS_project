@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import Navbar from './Navbar';
 import {
   LineChart,
   Line,
@@ -171,7 +172,8 @@ function Analytics() {
   const metricLabel = METRICS.find((m) => m.key === metric)?.label ?? metric;
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-[#0b0f1a] px-4 py-10 text-gray-100 sm:px-8">
+    <div className="flex min-h-screen w-full flex-col items-center bg-[#0b0f1a] text-gray-100 sm:px-8">
+      <Navbar />
       <header className="mb-12 text-center">
         <h1 className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent">
           Overall Analysis

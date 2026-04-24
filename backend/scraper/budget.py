@@ -6,6 +6,10 @@ from io import BytesIO
 import pandas as pd
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
+import urllib3
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # DB SETUP
 conn = sqlite3.connect("nirf_budget.db")
@@ -32,7 +36,8 @@ CREATE TABLE IF NOT EXISTS nirf_data (
     consultancy_amount REAL,
 
     sponsored_projects REAL,
-    funding_agencies REAL
+    funding_agencies REAL,
+    PRIMARY KEY (id,domain,fin_year)
 )
 """)
 conn.commit()
@@ -51,7 +56,9 @@ def load_pdf(pdf_url):
     if pdf_url in pdf_cache:
         return pdf_cache[pdf_url]
 
-    response = session.get(pdf_url, headers=headers)
+    # SSL fix
+    response = session.get(pdf_url, headers=headers, verify=False)
+
     pdf = pdfplumber.open(BytesIO(response.content))
     pdf_cache[pdf_url] = pdf
     return pdf
@@ -170,11 +177,11 @@ def research_consult(pdf):
 
     return research, consultancy
 
+# SPONSORED RESEARCH (no change)
 def sponsored_research(pdf):
     data = {
         "projects": None,
-        "agencies": None,
-        "amount": None
+        "agencies": None
     }
 
     for page in pdf.pages:
@@ -200,18 +207,14 @@ def sponsored_research(pdf):
 
                 if "total no. of sponsored projects" in row_text:
                     data["projects"] = values
-
                 elif "total no. of funding agencies" in row_text:
                     data["agencies"] = values
-
-                elif "total amount received" in row_text:
-                    data["amount"] = values
 
         break
 
     return data
 
-# PROCESS EACH INSTITUTE
+# PROCESS EACH INSTITUTE (no logic change)
 def process_institute(row, year, domain):
     cols = row.find_all("td")
     if not cols:
@@ -243,6 +246,7 @@ def process_institute(row, year, domain):
         for i in range(3):
             row_data = (
                 insti_ID, year, domain, years_list[i],
+
                 float(cap["library"][i]) if cap["library"] else None,
                 float(cap["equipment"][i]) if cap["equipment"] else None,
                 float(cap["workshops"][i]) if cap["workshops"] else None,
@@ -259,6 +263,7 @@ def process_institute(row, year, domain):
                 float(sr["projects"][i]) if sr["projects"] and len(sr["projects"]) > i else None,
                 float(sr["agencies"][i]) if sr["agencies"] and len(sr["agencies"]) > i else None
             )
+
             results.append(row_data)
 
         print(f"Done: {insti_ID}")
@@ -276,7 +281,9 @@ for year in years:
 
         url = f"https://www.nirfindia.org/Rankings/{year}/{domain}Ranking.html"
 
-        response = session.get(url, headers=headers)
+        # 🔴 FIX 3: SSL fix here also
+        response = session.get(url, headers=headers, verify=False)
+
         if response.status_code != 200:
             print(f"Failed for {domain}")
             continue
@@ -293,13 +300,14 @@ for year in years:
 
         print(f"Finished: {year}-{domain}")
 
-# BULK INSERT
+# INSERT
 cursor.executemany("""
 INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """, all_data)
 
 conn.commit()
 
+<<<<<<< HEAD
 # SAVE CSV
 columns = [
     "insti_ID", "nirf_year", "domain", "fin_year",
@@ -315,5 +323,8 @@ os.makedirs("data", exist_ok=True)
 df.to_csv("data/nirf_full_budget_data.csv", index=False)
 
 print("\nData saved to CSV and SQLite!")
+=======
+print("\n✅ Data saved to SQLite!")
+>>>>>>> b1e6558443a87eb7eceaf910b3c32f8bd55436f7
 
 conn.close()
