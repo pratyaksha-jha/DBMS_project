@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import Navbar from './Navbar';
 import {
   Chart as ChartJS,
   LineElement,
@@ -376,7 +377,8 @@ const IITGAnalysis = () => {
   }, [shadowData]);
 
   return (
-    <div className="flex w-full flex-col items-center bg-[#0b0f1a] px-4 py-8 text-gray-100 sm:px-8">
+    <div className="flex w-full flex-col items-center bg-[#0b0f1a]   text-gray-100 sm:px-8">
+      <Navbar />
       <header className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
           IIT Guwahati NIRF Analysis (2021-2025)
