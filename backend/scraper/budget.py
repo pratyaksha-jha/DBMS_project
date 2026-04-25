@@ -307,7 +307,6 @@ INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
 conn.commit()
 
-<<<<<<< HEAD
 # SAVE CSV
 columns = [
     "insti_ID", "nirf_year", "domain", "fin_year",
@@ -323,8 +322,6 @@ os.makedirs("data", exist_ok=True)
 df.to_csv("data/nirf_full_budget_data.csv", index=False)
 
 print("\nData saved to CSV and SQLite!")
-=======
 print("\n✅ Data saved to SQLite!")
->>>>>>> b1e6558443a87eb7eceaf910b3c32f8bd55436f7
 
 conn.close()
