@@ -1,12 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import saharshiniPhoto from './saharshini.jpg';
+import pratyakshaPhoto from './pratyaksha.jpg';
+import somitaPhoto     from './somita.jpg';
+import sharanyaPhoto   from './sharanya.jpg';
+import yasaswiPhoto    from './yasaswi.jpg';
+
 
 const TEAM = [
-  { name: 'Nayakwadi Saharshini', roll: '240150021', initials: 'NS' },
-  { name: 'Pratyaksha Jha',       roll: '240150025', initials: 'PJ' },
-  { name: 'Somita Agarwal',       roll: '240150036', initials: 'SA' },
-  { name: 'Sunkari Sharanya',     roll: '240150036', initials: 'SS' },
-  { name: 'Yendluri Yasaswi',     roll: '240150040', initials: 'YY' },
+  { name: 'Nayakwadi Saharshini', roll: '240150021', initials: 'NS', photo: saharshiniPhoto },
+  { name: 'Pratyaksha Jha',       roll: '240150025', initials: 'PJ', photo: pratyakshaPhoto },
+  { name: 'Somita Agarwal',       roll: '240150036', initials: 'SA', photo: somitaPhoto     },
+  { name: 'Sunkari Sharanya',     roll: '240150036', initials: 'SS', photo: sharanyaPhoto   },
+  { name: 'Yendluri Yasaswi',     roll: '240150040', initials: 'YY', photo: yasaswiPhoto    },
 ];
 
 const PORTAL_STATS = [
@@ -154,8 +160,8 @@ export default function About() {
               <p style={S.featureDesc}>
                 A dedicated deep-dive section for IIT Guwahati, tracking its
                 NIRF trajectory across domains, comparing parameter scores
-                against peer institutions, and showcasing budget and research
-                trends over five years.
+                against peer institutions, and showcasing various trends like budget, maintenance, research
+                and others over five years.
               </p>
             </div>
 
@@ -293,18 +299,9 @@ export default function About() {
   );
 }
 
-function MemberCard({ member, accent, delay, visible }) {
-  const [photo, setPhoto] = useState(null);
-  const [hov,   setHov]   = useState(false);
-  const fileRef           = useRef(null);
 
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setPhoto(ev.target.result);
-    reader.readAsDataURL(file);
-  };
+function MemberCard({ member, accent, delay, visible }) {
+  const [hov, setHov] = useState(false);
 
   return (
     <div
@@ -325,38 +322,19 @@ function MemberCard({ member, accent, delay, visible }) {
       <div style={{ ...S.memberStrip, background: accent, opacity: hov ? 1 : 0.35 }} />
 
       <div
-        onClick={() => fileRef.current?.click()}
-        title="Click to upload photo"
         style={{
           ...S.avatarCircle,
           borderColor: accent,
-          background: photo ? 'transparent' : `${accent}18`,
-          cursor: 'pointer',
+          background: member.photo ? 'transparent' : `${accent}18`,
         }}
       >
-        {photo ? (
-          <img src={photo} alt={member.name} style={S.avatarImg} />
+        {member.photo ? (
+          <img src={member.photo} alt={member.name} style={S.avatarImg} />
         ) : (
-          <div style={S.avatarFallback}>
-            <span style={{ ...S.avatarInitials, color: accent }}>
-              {member.initials}
-            </span>
-            <span style={S.avatarUploadHint}>
-              <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 12, height: 12 }}>
-                <path d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 6.414V13a1 1 0 11-2 0V6.414L7.707 7.707A1 1 0 016.293 6.293l3-3A1 1 0 0110 3z" />
-                <path d="M4 15a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z" />
-              </svg>
-              Add photo
-            </span>
-          </div>
+          <span style={{ ...S.avatarInitials, color: accent }}>
+            {member.initials}
+          </span>
         )}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleFile}
-        />
       </div>
 
       <h3 style={S.memberName}>{member.name}</h3>
@@ -365,17 +343,6 @@ function MemberCard({ member, accent, delay, visible }) {
       <div style={{ ...S.degreeBadge, borderColor: `${accent}55`, color: accent }}>
         B.Tech · DS&amp;AI · IIT Guwahati
       </div>
-
-      {photo && (
-        <button
-          onClick={() => fileRef.current?.click()}
-          style={{ ...S.changeBtn, borderColor: accent, color: accent }}
-          onMouseEnter={e => e.currentTarget.style.background = `${accent}18`}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-        >
-          Change photo
-        </button>
-      )}
     </div>
   );
 }
@@ -518,9 +485,6 @@ const S = {
     fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: '0 0 8px',
     fontFamily: "'Georgia',serif", letterSpacing: '-0.01em',
   },
-  secSub: {
-    fontSize: 14.5, color: '#6b7280', margin: 0, lineHeight: 1.65,
-  },
 
   projectGrid: {
     display: 'grid',
@@ -534,141 +498,117 @@ const S = {
     display: 'flex', flexDirection: 'column',
   },
   featureIconWrap: (color) => ({
-    width: 52, height: 52, borderRadius: 14,
-    background: `${color}14`, border: `1px solid ${color}33`,
+    width: 52, height: 52, borderRadius: 14, marginBottom: 18,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color, marginBottom: 16,
+    background: `${color}14`, color, border: `1px solid ${color}28`,
   }),
   featureTitle: {
-    fontSize: 16, fontWeight: 700, color: '#0f1f3d',
-    margin: '0 0 10px', fontFamily: "'Georgia',serif",
+    fontSize: 15.5, fontWeight: 700, color: '#0f1f3d',
+    margin: '0 0 10px', letterSpacing: '-0.01em',
   },
   featureDesc: {
-    fontSize: 13.5, color: '#6b7280', lineHeight: 1.7, margin: 0,
+    fontSize: 13.5, color: '#4b5563', lineHeight: 1.7, margin: 0,
   },
 
   profCard: {
-    background: '#fff', borderRadius: 20, position: 'relative', overflow: 'hidden',
-    boxShadow: '0 4px 32px rgba(15,31,61,0.09)', border: '1px solid rgba(15,31,61,0.07)',
+    background: '#fff', borderRadius: 20, overflow: 'hidden',
+    border: '1px solid rgba(15,31,61,0.08)',
+    boxShadow: '0 4px 32px rgba(15,31,61,0.08)',
+    position: 'relative',
   },
   profStrip: {
-    position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-    background: 'linear-gradient(90deg, #f5a623 0%, #f97316 100%)',
+    height: 5,
+    background: 'linear-gradient(90deg, #f5a623 0%, #f97316 50%, #3b82f6 100%)',
   },
   profInner: {
-    display: 'flex', gap: 40, padding: '40px 40px 36px', alignItems: 'flex-start',
-    flexWrap: 'wrap',
+    display: 'flex', gap: 36, padding: '36px 40px',
+    alignItems: 'flex-start', flexWrap: 'wrap',
   },
   profAvatarWrap: {
-    flexShrink: 0, width: 160, height: 160, borderRadius: '50%',
-    overflow: 'hidden', border: '3px solid rgba(245,166,35,0.4)',
-    boxShadow: '0 4px 20px rgba(245,166,35,0.2)',
+    width: 140, height: 140, borderRadius: 16, overflow: 'hidden',
+    border: '3px solid rgba(245,166,35,0.3)', flexShrink: 0,
+    background: '#f3f4f6',
   },
-  profAvatar: { width: '100%', height: '100%', objectFit: 'cover' },
-  profInfo: {
-    flex: 1, minWidth: 260,
-    display: 'flex', flexDirection: 'column', gap: 5,
-  },
+  profAvatar:   { width: '100%', height: '100%', objectFit: 'cover' },
+  profInfo:     { flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 },
   profName: {
-    fontSize: 26, fontWeight: 700, color: '#0f1f3d', margin: 0,
-    fontFamily: "'Georgia',serif",
+    fontSize: 22, fontWeight: 700, color: '#0f1f3d',
+    margin: 0, fontFamily: "'Georgia',serif",
   },
-  profRole: {
-    fontSize: 15, fontWeight: 600, color: '#374151', margin: 0,
-  },
+  profRole:     { fontSize: 13, color: '#6b7280', margin: 0, fontWeight: 500 },
   profDeptLink: {
-    fontSize: 13.5, fontWeight: 500, color: '#3b82f6',
-    textDecoration: 'none', display: 'block', transition: 'color 0.18s',
+    fontSize: 13.5, color: '#3b82f6', fontWeight: 600,
+    textDecoration: 'none', transition: 'color 0.18s',
   },
   profInstLink: {
-    fontSize: 13, fontWeight: 400, color: '#9ca3af', fontStyle: 'italic',
-    textDecoration: 'none', display: 'block', transition: 'color 0.18s',
+    fontSize: 13, color: '#9ca3af', textDecoration: 'none',
+    transition: 'color 0.18s',
   },
-  profTagRow: {
-    display: 'flex', flexWrap: 'wrap', gap: 8, margin: '6px 0 2px',
-  },
+  profTagRow: { display: 'flex', gap: 8, flexWrap: 'wrap' },
   profBio: {
-    fontSize: 13.5, color: '#4b5563', lineHeight: 1.75, margin: '6px 0 12px',
-    maxWidth: 640,
+    fontSize: 13.5, color: '#4b5563', lineHeight: 1.72, margin: 0,
   },
   profLink: {
-    display: 'inline-block', background: '#f5a623', color: '#fff',
-    fontWeight: 600, fontSize: 13, padding: '10px 22px', borderRadius: 8,
-    textDecoration: 'none', letterSpacing: '0.02em',
-    transition: 'background 0.18s', boxShadow: '0 2px 10px rgba(245,166,35,0.35)',
-    alignSelf: 'flex-start',
+    display: 'inline-block', padding: '9px 22px',
+    background: '#f5a623', color: '#fff', borderRadius: 8,
+    fontSize: 13, fontWeight: 600, textDecoration: 'none',
+    transition: 'background 0.18s', alignSelf: 'flex-start',
   },
 
   teamGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    gap: 22,
+    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+    gap: 20,
   },
   memberCard: {
-    background: '#fff', borderRadius: 18, padding: '32px 22px 26px',
-    cursor: 'default', position: 'relative', overflow: 'hidden',
-    transition: 'all 0.28s cubic-bezier(0.34,1.2,0.64,1)',
-    border: '1px solid rgba(15,31,61,0.08)',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-    boxSizing: 'border-box',
+    background: '#fff', borderRadius: 18, overflow: 'hidden',
+    border: '1px solid rgba(15,31,61,0.07)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    padding: '0 20px 24px',
+    transition: 'transform 0.35s cubic-bezier(.22,.68,0,1.2), opacity 0.45s ease, box-shadow 0.25s ease',
+    position: 'relative',
   },
   memberStrip: {
-    position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-    borderRadius: '18px 18px 0 0', transition: 'opacity 0.25s',
+    width: '100%', height: 4, marginBottom: 22,
+    transition: 'opacity 0.25s',
   },
-
   avatarCircle: {
-    width: 96, height: 96, borderRadius: '50%',
+    width: 88, height: 88, borderRadius: '50%',
     border: '2.5px solid',
     overflow: 'hidden',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    position: 'relative', flexShrink: 0,
-    transition: 'border-color 0.2s, box-shadow 0.2s',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 14,
   },
-  avatarImg: { width: '100%', height: '100%', objectFit: 'cover' },
-  avatarFallback: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-    width: '100%', height: '100%', justifyContent: 'center',
+  avatarImg: {
+    width: '100%', height: '100%', objectFit: 'cover',
   },
   avatarInitials: {
-    fontSize: 26, fontWeight: 700, fontFamily: "'Georgia',serif",
-    lineHeight: 1,
+    fontSize: 26, fontWeight: 700,
+    fontFamily: "'Georgia',serif", lineHeight: 1,
   },
-  avatarUploadHint: {
-    fontSize: 9.5, color: '#9ca3af', letterSpacing: '0.04em',
-    display: 'flex', alignItems: 'center', gap: 3,
-    textTransform: 'uppercase', fontWeight: 600,
-  },
-
   memberName: {
-    fontSize: 15.5, fontWeight: 700, margin: 0, textAlign: 'center',
-    fontFamily: "'Georgia',serif", color: '#0f1f3d', lineHeight: 1.3,
+    fontSize: 13.5, fontWeight: 700, color: '#0f1f3d',
+    margin: '0 0 4px', textAlign: 'center', lineHeight: 1.3,
   },
   memberRoll: {
-    fontSize: 12, color: '#9ca3af', margin: 0, letterSpacing: '0.06em',
-    fontFamily: 'monospace', fontWeight: 600,
+    fontSize: 11.5, color: '#9ca3af', margin: '0 0 12px',
+    fontFamily: 'monospace', letterSpacing: '0.04em',
   },
   degreeBadge: {
-    fontSize: 10.5, fontWeight: 600, letterSpacing: '0.04em',
-    padding: '4px 12px', borderRadius: 20, border: '1px solid',
-    marginTop: 2,
-  },
-  changeBtn: {
-    background: 'transparent', border: '1px solid', borderRadius: 8,
-    fontSize: 11, fontWeight: 600, padding: '5px 14px',
-    cursor: 'pointer', letterSpacing: '0.03em',
-    transition: 'background 0.18s', fontFamily: 'inherit', marginTop: 4,
+    fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
+    padding: '4px 10px', borderRadius: 20, border: '1px solid',
+    textTransform: 'uppercase',
   },
 
   techGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(175px, 1fr))',
-    gap: 14,
+    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gap: 12,
   },
   techPill: {
     background: '#fff', borderRadius: 12, padding: '14px 18px',
     border: '1px solid rgba(15,31,61,0.08)',
-    boxShadow: '0 1px 8px rgba(15,31,61,0.05)',
     display: 'flex', alignItems: 'center', gap: 12,
   },
   techDot: {
@@ -679,13 +619,12 @@ const S = {
   },
   techCat: {
     display: 'block', fontSize: 11, color: '#9ca3af',
-    letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500,
+    letterSpacing: '0.06em', textTransform: 'uppercase',
   },
 
   footer: {
-    width: '100%', boxSizing: 'border-box',
-    textAlign: 'center', padding: '22px 40px',
-    fontSize: 12, color: '#9ca3af', letterSpacing: '0.02em',
-    borderTop: '1px solid #e5e7eb', background: '#f4f6f9',
+    textAlign: 'center', padding: '24px 40px',
+    borderTop: '1px solid rgba(15,31,61,0.08)',
+    fontSize: 12, color: '#9ca3af', letterSpacing: '0.04em',
   },
 };
