@@ -177,7 +177,7 @@ def research_consult(pdf):
 
     return research, consultancy
 
-# SPONSORED RESEARCH (no change)
+# SPONSORED RESEARCH
 def sponsored_research(pdf):
     data = {
         "projects": None,
@@ -214,7 +214,7 @@ def sponsored_research(pdf):
 
     return data
 
-# PROCESS EACH INSTITUTE (no logic change)
+# PROCESS EACH INSTITUTE
 def process_institute(row, year, domain):
     cols = row.find_all("td")
     if not cols:
@@ -281,7 +281,7 @@ for year in years:
 
         url = f"https://www.nirfindia.org/Rankings/{year}/{domain}Ranking.html"
 
-        # 🔴 FIX 3: SSL fix here also
+        # SSL fix here also
         response = session.get(url, headers=headers, verify=False)
 
         if response.status_code != 200:
@@ -321,7 +321,8 @@ df = pd.DataFrame(all_data, columns=columns)
 os.makedirs("data", exist_ok=True)
 df.to_csv("data/nirf_full_budget_data.csv", index=False)
 
-print("\nData saved to CSV and SQLite!")
-print("\n✅ Data saved to SQLite!")
+print("\nData saved to CSV")
+
+print("\nData saved to SQLite!")
 
 conn.close()
