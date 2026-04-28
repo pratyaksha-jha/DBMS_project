@@ -35,20 +35,20 @@ const NIRF_PARAMETERS = [
     factors: [
       {
         code: "SS",
-        label: "Student Strength including Doctoral Students",
+        label: "Student Strength including Doctoral Students.",
         subWeight: 20,
       },
       {
         code: "FSR",
-        label: "Faculty-student ratio (emphasis on permanent faculty)",
+        label: "Faculty Student Ratio.",
         subWeight: 30,
       },
       {
         code: "FQE",
-        label: "Faculty with PhD (or equivalent) and experience",
+        label: "Faculty Qualification and Experience.",
         subWeight: 20,
       },
-      { code: "FRU", label: "Financial Resources and Utilisation", subWeight: 30 },
+      { code: "FRU", label: "Financial Resources and Utilisation.", subWeight: 30 },
     ],
   },
   {
@@ -58,10 +58,10 @@ const NIRF_PARAMETERS = [
     factors: [
       { code: "PU", label: "Publications", subWeight: 35 },
       { code: "QP", label: "Quality of Publications", subWeight: 40 },
-      { code: "IPR", label: "IPR and Patents: Published and Granted", subWeight: 15 },
+      { code: "IPR", label: "Intellectual Property Rights", subWeight: 15 },
       {
         code: "FPPP",
-        label: "Footprint of Projects and Professional Practice",
+        label: "Footprint of Projects & Professional Practice",
         subWeight: 10,
       },
     ],
@@ -72,9 +72,9 @@ const NIRF_PARAMETERS = [
     weightPct: 20,
     factors: [
       { code: "GPH", label: "Placement and Higher Studies", subWeight: 40 },
-      { code: "GUE", label: "University Examinations", subWeight: 15 },
+      { code: "GUE", label: "Metric for University Examinations", subWeight: 15 },
       { code: "MS", label: "Median Salary (GMS)", subWeight: 25 },
-      { code: "GPHD", label: "Ph.D. Students Graduated", subWeight: 20 },
+      { code: "GPHD", label: "Graduated Ph.D. Students", subWeight: 20 },
     ],
   },
   {
@@ -84,10 +84,10 @@ const NIRF_PARAMETERS = [
     factors: [
       {
         code: "RD",
-        label: "Students from other States/Countries (Region Diversity)",
+        label: "Region Diversity: Percentage of Students from other States/Countries ",
         subWeight: 30,
       },
-      { code: "WD", label: "Women (Women Diversity)", subWeight: 30 },
+      { code: "WD", label: "Women Diversity: Percentage of Women.", subWeight: 30 },
       {
         code: "ESCS",
         label: "Economically and Socially Challenged Students",
@@ -98,7 +98,7 @@ const NIRF_PARAMETERS = [
   },
   {
     code: "PR",
-    name: "Perception",
+    name: "Perception Ranking",
     weightPct: 10,
     factors: [
       {
@@ -110,27 +110,15 @@ const NIRF_PARAMETERS = [
   },
 ];
 
-const tableShell = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: "15px",
-  textAlign: "left",
-};
 
-const thTd = {
-  border: "1px solid var(--border)",
-  padding: "8px 10px",
-  verticalAlign: "top",
-};
 
 const IITGAnalysis = () => {
+  const [openParam, setOpenParam] = useState(null); 
   const [institutes, setInstitutes] = useState([]);
   const [institute, setInstitute] = useState("");
   const [domain, setDomain] = useState("overall");
   const [chartData, setChartData] = useState(null);
   const [shadowData, setShadowData] = useState(null);
-  const [iitgIithDomain, setIitgIithDomain] = useState("overall");
-  const [iitgIithChartData, setIitgIithChartData] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/shadow_metrics`)
@@ -142,7 +130,7 @@ const IITGAnalysis = () => {
   const fetchInstitutes = async (selectedDomain) => {
     try {
       const query = new URLSearchParams({ domain: selectedDomain });
-      query.append("top_n", "10");
+      query.append("top_n", "100");
 
       const res = await fetch(`${API_BASE}/api/institutes?${query.toString()}`);
       const data = await res.json();
@@ -226,61 +214,6 @@ const IITGAnalysis = () => {
     }
   }, [institute, domain]);
 
-  const fetchIitgVsIithGraph = async (selectedDomain) => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/iitg_iith?domain=${selectedDomain}`
-      );
-      if (!res.ok) {
-        throw new Error(`IITG vs IITH graph API failed: ${res.status}`);
-      }
-      const data = await res.json();
-
-      const rows = (data.years || [])
-        .map((year, idx) => ({
-          year: Number(year),
-          iitg: data.iitg?.[idx] == null ? null : Number(data.iitg[idx]),
-          iith: data.iith?.[idx] == null ? null : Number(data.iith[idx]),
-        }))
-        .filter((row) => row.year >= 2017 && row.year <= 2025);
-
-      setIitgIithChartData({
-        labels: rows.map((r) => String(r.year)),
-        datasets: [
-          {
-            label: "Indian Institute of Technology Guwahati",
-            data: rows.map((r) => r.iitg),
-            borderColor: "#dc2626",
-            backgroundColor: "rgba(220, 38, 38, 0.2)",
-            pointBackgroundColor: "#dc2626",
-            pointRadius: 4,
-            borderWidth: 3,
-            tension: 0.2,
-            spanGaps: true,
-          },
-          {
-            label: "Indian Institute of Technology Hyderabad",
-            data: rows.map((r) => r.iith),
-            borderColor: "#3b82f6",
-            backgroundColor: "rgba(59, 130, 246, 0.2)",
-            pointBackgroundColor: "#3b82f6",
-            pointRadius: 4,
-            borderWidth: 3,
-            tension: 0.2,
-            spanGaps: true,
-          },
-        ],
-      });
-    } catch (err) {
-      console.error("Error fetching IITG vs IITH data:", err);
-      setIitgIithChartData(null);
-    }
-  };
-
-  useEffect(() => {
-    fetchIitgVsIithGraph(iitgIithDomain);
-  }, [iitgIithDomain]);
-
   const chartOptions = useMemo(
     () => ({
       responsive: true,
@@ -292,34 +225,6 @@ const IITGAnalysis = () => {
           labels: { usePointStyle: true, padding: 16, color: "#d1d5db" },
         },
         tooltip: { mode: "index", intersect: false },
-      },
-      scales: {
-        x: {
-          title: { display: true, text: "Year", color: "#d1d5db" },
-          ticks: { color: "#d1d5db" },
-          grid: { color: "rgba(255,255,255,0.1)" },
-        },
-        y: {
-          title: { display: true, text: "NIRF score", color: "#d1d5db" },
-          ticks: { color: "#d1d5db" },
-          grid: { color: "rgba(255,255,255,0.1)" },
-          suggestedMin: 0,
-        },
-      },
-    }),
-    []
-  );
-
-  const iitgIithChartOptions = useMemo(
-    () => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: {
-          position: "top",
-          labels: { usePointStyle: true, padding: 16, color: "#d1d5db" },
-        },
       },
       scales: {
         x: {
@@ -396,46 +301,46 @@ const IITGAnalysis = () => {
             NIRF score is built from five main categories. The table shows the total category
             weight and each sub-parameter's contribution.
           </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="bg-gray-800/40 text-gray-300 text-[11px] uppercase tracking-wider">
-                  <th className="px-4 py-3 font-semibold">Main Parameter</th>
-                  <th className="px-4 py-3 font-semibold">Total Weight</th>
-                  <th className="px-4 py-3 font-semibold">Sub-Parameter</th>
-                  <th className="px-4 py-3 font-semibold">Sub Weight</th>
-                  <th className="px-4 py-3 font-semibold">Meaning</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {NIRF_PARAMETERS.map((p) =>
-                  p.factors.map((f, i) => (
-                    <tr key={`${p.code}-${f.code}-${i}`} className="hover:bg-gray-800/40">
-                      {i === 0 && (
-                        <td rowSpan={p.factors.length} className="px-4 py-3 font-bold text-cyan-300">
-                          {p.code} ({p.name})
-                        </td>
-                      )}
-                      {i === 0 && (
-                        <td rowSpan={p.factors.length} className="px-4 py-3 text-gray-200 font-mono">
-                          {p.weightPct}%
-                        </td>
-                      )}
-                      <td className="px-4 py-3 font-mono text-cyan-400">{f.code}</td>
-                      <td className="px-4 py-3 font-mono text-gray-200">{f.subWeight}%</td>
-                      <td className="px-4 py-3 text-gray-300">{f.label}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+<div className="space-y-4">
+  {NIRF_PARAMETERS.map((param, index) => {
+    const isOpen = openParam === index;
+
+    return (
+      <div key={param.code} className="border border-gray-700 rounded-lg">
+        
+        {/* CLICKABLE HEADER */}
+        <div
+          onClick={() => setOpenParam(isOpen ? null : index)}
+          className="cursor-pointer flex justify-between p-4 bg-gray-800"
+        >
+          <div>
+            <p>{param.code} - {param.name}</p>
+            <p>Weight: {param.weightPct}%</p>
           </div>
+          <div>{isOpen ? "▲" : "▼"}</div>
+        </div>
+
+        {/* DROPDOWN CONTENT */}
+        {isOpen && (
+          <div className="p-4 bg-gray-900">
+            {param.factors.map((f) => (
+              <div key={f.code} className="mb-2">
+                <b>{f.code}</b> ({f.subWeight}%)
+                <p>{f.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  })}
+</div>
         </section>
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <div className="mb-4">
             <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">
-              Score trend: IIT Guwahati vs Top 10 peer
+              Score comparision across years of IITG and other institutes.
             </h2>
             
           </div>
@@ -450,7 +355,7 @@ const IITGAnalysis = () => {
               />
             </div>
             <div>
-              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Peer institute (Top 10 only)</label>
+              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Peer institute</label>
               <SearchableSelect
                 options={institutes}
                 value={institute}
@@ -525,42 +430,6 @@ const IITGAnalysis = () => {
 
         <ShadowMetricsChart />
 
-        <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
-          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500">
-              IITG vs IITH (year-wise)
-            </h2>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase text-gray-500">Domain</span>
-              <div className="rounded-lg border border-gray-700 p-1 bg-gray-900/50">
-                {DOMAINS.map((d) => (
-                  <button
-                    key={d.value}
-                    type="button"
-                    onClick={() => setIitgIithDomain(d.value)}
-                    className={`px-3 py-1 text-xs rounded-md transition ${
-                      iitgIithDomain === d.value
-                        ? "bg-cyan-600 text-white"
-                        : "text-gray-300 hover:bg-gray-700"
-                    }`}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <p className="text-sm text-gray-300 mb-4">
-            Direct year-wise comparison between IIT Guwahati and IIT Hyderabad for 2017-2025.
-          </p>
-          <div className="h-[330px] w-full">
-            {iitgIithChartData ? (
-              <Line data={iitgIithChartData} options={iitgIithChartOptions} />
-            ) : (
-              <p className="text-sm text-gray-400">Loading IITG vs IITH plot...</p>
-            )}
-          </div>
-        </section>
       </div>
     </div>
   );

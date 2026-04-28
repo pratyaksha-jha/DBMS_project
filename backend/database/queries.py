@@ -7,10 +7,7 @@ DATA_DIR = os.path.join(BASE_DIR, "..", "data")
 DB_PATH = os.path.join(DATA_DIR, "clean_nirf.db")
 SHADOW_METRICS_JSON = os.path.join(DATA_DIR, "shadow_metrics.json")
 
-# NIRF full name for IIT Guwahati only. Use exact match — never LIKE "%...guwahati%"
-# (Indian Institute of Information Technology Guwahati is a different institute).
 IIT_GUWAHATI_NAME = "Indian Institute of Technology Guwahati"
-IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad"
 IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad"
 
 def get_connection():
@@ -125,9 +122,6 @@ def list_institutes_excluding_iitg(domain: str, top_n: int | None = None):
     """
 
     params: list = [domain, IIT_GUWAHATI_NAME]
-    if top_n is not None and top_n > 0:
-        query += "\nLIMIT ?"
-        params.append(top_n)
 
     cursor.execute(query, tuple(params))
 
