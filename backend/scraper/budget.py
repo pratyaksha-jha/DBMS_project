@@ -6,6 +6,10 @@ from io import BytesIO
 import pandas as pd
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
+import urllib3
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # DB SETUP
 conn = sqlite3.connect("nirf_budget.db")
@@ -29,7 +33,11 @@ CREATE TABLE IF NOT EXISTS nirf_data (
     seminars REAL,
 
     research_amount REAL,
-    consultancy_amount REAL
+    consultancy_amount REAL,
+
+    sponsored_projects REAL,
+    funding_agencies REAL,
+    PRIMARY KEY (id,domain,fin_year)
 )
 """)
 conn.commit()
@@ -48,7 +56,9 @@ def load_pdf(pdf_url):
     if pdf_url in pdf_cache:
         return pdf_cache[pdf_url]
 
-    response = session.get(pdf_url, headers=headers)
+    # SSL fix
+    response = session.get(pdf_url, headers=headers, verify=False)
+
     pdf = pdfplumber.open(BytesIO(response.content))
     pdf_cache[pdf_url] = pdf
     return pdf
@@ -167,6 +177,43 @@ def research_consult(pdf):
 
     return research, consultancy
 
+# SPONSORED RESEARCH
+def sponsored_research(pdf):
+    data = {
+        "projects": None,
+        "agencies": None
+    }
+
+    for page in pdf.pages:
+        text = page.extract_text()
+
+        if not text or "sponsored research details" not in text.lower():
+            continue
+
+        for table in page.extract_tables() or []:
+            for row in table:
+                if not row:
+                    continue
+
+                row_text = " ".join([str(c).lower() for c in row if c])
+
+                values = [
+                    c.split("(")[0].strip().replace(",", "")
+                    for c in row if c and any(x.isdigit() for x in c)
+                ]
+
+                if len(values) != 3:
+                    continue
+
+                if "total no. of sponsored projects" in row_text:
+                    data["projects"] = values
+                elif "total no. of funding agencies" in row_text:
+                    data["agencies"] = values
+
+        break
+
+    return data
+
 # PROCESS EACH INSTITUTE
 def process_institute(row, year, domain):
     cols = row.find_all("td")
@@ -190,6 +237,7 @@ def process_institute(row, year, domain):
         cap = capital_exp(pdf)
         op = oper_exp(pdf)
         res, con = research_consult(pdf)
+        sr = sponsored_research(pdf)
 
         years_list = ["2023-24", "2022-23", "2021-22"]
 
@@ -198,17 +246,24 @@ def process_institute(row, year, domain):
         for i in range(3):
             row_data = (
                 insti_ID, year, domain, years_list[i],
+
                 float(cap["library"][i]) if cap["library"] else None,
                 float(cap["equipment"][i]) if cap["equipment"] else None,
                 float(cap["workshops"][i]) if cap["workshops"] else None,
                 float(cap["studios"][i]) if cap["studios"] else None,
                 float(cap["capital_assets"][i]) if cap["capital_assets"] else None,
+
                 float(op["salaries"][i]) if op["salaries"] else None,
                 float(op["maintenance"][i]) if op["maintenance"] else None,
                 float(op["seminars"][i]) if op["seminars"] else None,
+
                 float(res[i]) if res else None,
-                float(con[i]) if con else None
+                float(con[i]) if con else None,
+
+                float(sr["projects"][i]) if sr["projects"] and len(sr["projects"]) > i else None,
+                float(sr["agencies"][i]) if sr["agencies"] and len(sr["agencies"]) > i else None
             )
+
             results.append(row_data)
 
         print(f"Done: {insti_ID}")
@@ -226,7 +281,9 @@ for year in years:
 
         url = f"https://www.nirfindia.org/Rankings/{year}/{domain}Ranking.html"
 
-        response = session.get(url, headers=headers)
+        # SSL fix here also
+        response = session.get(url, headers=headers, verify=False)
+
         if response.status_code != 200:
             print(f"Failed for {domain}")
             continue
@@ -243,9 +300,9 @@ for year in years:
 
         print(f"Finished: {year}-{domain}")
 
-# BULK INSERT
+# INSERT
 cursor.executemany("""
-INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT INTO nirf_data VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """, all_data)
 
 conn.commit()
@@ -255,14 +312,17 @@ columns = [
     "insti_ID", "nirf_year", "domain", "fin_year",
     "library", "equipment", "workshops", "studios", "capital_assets",
     "salaries", "maintenance", "seminars",
-    "research_amount", "consultancy_amount"
+    "research_amount", "consultancy_amount",
+    "sponsored_projects", "funding_agencies"
 ]
 
 df = pd.DataFrame(all_data, columns=columns)
 
 os.makedirs("data", exist_ok=True)
-df.to_csv("data/nirf_full_data.csv", index=False)
+df.to_csv("data/nirf_full_budget_data.csv", index=False)
 
-print("\n✅ Data saved to CSV and SQLite!")
+print("\nData saved to CSV")
+
+print("\nData saved to SQLite!")
 
 conn.close()

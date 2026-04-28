@@ -1,20 +1,14 @@
 import sqlite3
 
-# -----------------------------
 # CONNECT DATABASES
-# -----------------------------
-
-budget_conn = sqlite3.connect("../scraper/nirf_full.db")
+budget_conn = sqlite3.connect("../scraper/nirf_budget.db")
 budget_cursor = budget_conn.cursor()
 
 clean_conn = sqlite3.connect("../data/clean_nirf.db")
 clean_cursor = clean_conn.cursor()
 
 
-# -----------------------------
 # CREATE TABLE
-# -----------------------------
-
 clean_cursor.execute("""
 CREATE TABLE IF NOT EXISTS budget (
     id TEXT,
@@ -33,41 +27,36 @@ CREATE TABLE IF NOT EXISTS budget (
     seminars REAL,
 
     research_amount REAL,
-    consultancy_amount REAL
+    consultancy_amount REAL,
+
+    sponsored_projects REAL,
+    funding_agencies REAL,
+    PRIMARY KEY (id,domain,fin_year)
 )
 """)
 
 clean_conn.commit()
 
 
-# -----------------------------
 # FETCH DATA
-# -----------------------------
-
 budget_cursor.execute("SELECT * FROM nirf_data")
 rows = budget_cursor.fetchall()
 
 print(f"Budget rows fetched: {len(rows)}")
 
 
-# -----------------------------
 # INSERT DATA
-# -----------------------------
-
 count = 0
 
 for row in rows:
     clean_cursor.execute("""
-    INSERT INTO budget VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO budget VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, row)
 
     count += 1
 
 
-# -----------------------------
 # FINAL COMMIT
-# -----------------------------
-
 clean_conn.commit()
 
 budget_conn.close()
