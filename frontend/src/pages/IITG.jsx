@@ -303,40 +303,48 @@ const IITGAnalysis = () => {
             NIRF score is built from five main categories. The table shows the total category
             weight and each sub-parameter's contribution.
           </p>
-<div className="space-y-4">
-  {NIRF_PARAMETERS.map((param, index) => {
-    const isOpen = openParam === index;
+          <br></br>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {NIRF_PARAMETERS.map((param, index) => {
+              const isOpen = openParam === index;
 
-    return (
-      <div key={param.code} className="border border-gray-700 rounded-lg">
-        
-        {/* CLICKABLE HEADER */}
-        <div
-          onClick={() => setOpenParam(isOpen ? null : index)}
-          className="cursor-pointer flex justify-between p-4 bg-gray-800"
-        >
-          <div>
-            <p>{param.code} - {param.name}</p>
-            <p>Weight: {param.weightPct}%</p>
-          </div>
-          <div>{isOpen ? "▲" : "▼"}</div>
-        </div>
+              return (
+                <button
+                  key={param.code}
+                  type="button"
+                  onClick={() => setOpenParam(isOpen ? null : index)}
+                  className={`group rounded-xl border p-4 text-left transition-all duration-300 ${
+                    isOpen
+                      ? "border-cyan-500/60 bg-[#1f2937] shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]"
+                      : "border-gray-700/50 bg-[#1f2937]/40 hover:border-cyan-500/50 hover:bg-[#1f2937]"
+                  }`}
+                >
+                  <div className="mb-2 bg-gradient-to-br from-cyan-300 to-blue-500 bg-clip-text text-3xl font-black text-transparent">
+                    {param.code}
+                  </div>
+                  <p className="text-sm font-medium text-gray-200 transition-colors group-hover:text-white">
+                    {param.name}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-400">Weight: {param.weightPct}%</p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+                    {isOpen ? "Click to hide description" : "Click to view description"}
+                  </p>
 
-        {/* DROPDOWN CONTENT */}
-        {isOpen && (
-          <div className="p-4 bg-gray-900">
-            {param.factors.map((f) => (
-              <div key={f.code} className="mb-2">
-                <b>{f.code}</b> ({f.subWeight}%)
-                <p>{f.label}</p>
-              </div>
-            ))}
+                  {isOpen && (
+                    <div className="mt-3 space-y-2 border-t border-gray-700/70 pt-3 text-xs text-gray-300">
+                      {param.factors.map((f) => (
+                        <div key={f.code}>
+                          <span className="font-semibold text-cyan-300">{f.code}</span>
+                          <span className="text-gray-400"> ({f.subWeight}%)</span>
+                          <p className="mt-0.5 leading-relaxed">{f.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
-        )}
-      </div>
-    );
-  })}
-</div>
         </section>
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
