@@ -111,22 +111,55 @@ const NIRF_PARAMETERS = [
   },
 ];
 
+const IITG_BETTER_AREAS = [
+  {
+    title: "Social media presence",
+    points: [
+      "First, social media presence needs an overhaul. Top ranked IITs like IIT Madras and IIT Bombay post regularly and strategically on platforms such as Instagram, LinkedIn, X, and YouTube, showcasing student achievements, research breakthroughs, competitions, and campus life. IITG should follow a structured social media calendar, posting more frequently and highlighting student projects, placements, startups, research papers, design competitions, and sports events. This would not only improve perception scores in rankings but also attract better students, faculty, and industry interest.",
+    ],
+  },
+  {
+    title: "Institutes main webpage",
+    points: [
+      "Second, the main webpage of IITG is very bland and outdated compared to top IITs. IIT Bombay, IIT Delhi, and IIT Madras place their major achievements, flagship projects, research centres, and upcoming events right on the homepage, making it easy for visitors to see the institute’s impact at a glance. In contrast, IITG’s homepage still gives space to relatively “low impact” content like the academic calendar and routine notices, which does little to build brand image. The website should be redesigned with a modern, user friendly layout, strong visual hierarchy, and clear sections for research, innovation, industry collaborations, and student achievements to project IITG as a dynamic, research driven campus."],
+  },
+  {
+    title: "Industrial outreach",
+    points: [
+      "Third, industrial outreach and collaborations at IITG must intensify. Top IITs have formal, continuous partnerships with reputed companies such as Mercedes Benz (with IIT Delhi), John Cockerill and Rishabh Instruments (with IIT Bombay), and many others for joint R&D, sponsored labs, and skill development programmes. These collaborations not only generate revenue and cutting edge research but also improve Perception and Graduation Outcomes in rankings. IITG should create a dedicated industry relations cell to proactively reach out to national and global companies, propose industry specific centres of excellence, and design internship and project based learning opportunities that align with market needs."],
+  },
+  {
+    title: "Student clubs",
+    points: [
+      "Fourth, student clubs and communities play a surprisingly large role in shaping an institute’s image and depth of expertise. IIT Bombay, for example, splits broad interests into multiple focused clubs—like Quant Club, Finance Club ...etc —so students can dive deep into niche areas. In contrast, IIT Guwahati has broader clubs such as Finance and Economics Club (FEC), which, while valuable, does not allow the same level of specialization and project depth. Expanding and subdividing clubs into domain specific verticals (e.g., Quant, Finance, Data, Policy, Consulting) would help students build sharper skills, create higher quality projects, and look more impressive to recruiters and rankings agencies."],
+  },
+  {
+    title: "Sports and extracuriculars",
+    points: [
+      "Fifth, sports and extra curricular excellence directly boost perception. IIT Madras has introduced sports quotas, actively recruiting talented athletes and strengthening its inter IIT sports performance, which in turn improves its brand image as a “well balanced” institute. A strong presence in national level tournaments, festivals, and championships generates media coverage and positive word of mouth, both of which feed into the Perception parameter in NIRF and other rankings. IITG should invest in sports infrastructure, coaching, and incentives for athletes, and publicize its sports successes widely on social media and the homepage"],
+  },
+  {
+    title: "startup culture",
+    points: [
+      "Finally, IITG must develop a real startup culture instead of relying only on academic excellence. While institutes like IIT Madras and IIT Bombay have thriving ecosystems supported by large incubators and frequent funding readiness workshops, IITG’s Technology Incubation Centre (Tihub) and BioNEST are under utilized and not prominently marketed. To promote a startup culture, IITG should:",
+      "Expand incubation centres with more seed funding, mentor networks, and angel investor connects.",
+      "Run regular startup bootcamps, hackathons, and demo days featuring industry judges and media coverage.",
+      "Integrate entrepreneurship courses and mini MBA style modules into the curriculum so more students view startups as a viable career path.",
+      "By improving social media marketing, website design, industry partnerships, specialized clubs, sports outreach, and startup culture, IIT Guwahati can not only increase its TLR and Perception (PR) scores in NIRF but also position itself as a truly competitive, modern institute on par with the top ranked IITs.",
+    ],
+  },
+];
+
 
 
 const IITGAnalysis = () => {
   const [openParam, setOpenParam] = useState(null); 
+  const [openBetterArea, setOpenBetterArea] = useState(null);
   const [institutes, setInstitutes] = useState([]);
   const [institute, setInstitute] = useState("");
   const [domain, setDomain] = useState("overall");
   const [chartData, setChartData] = useState(null);
   const [shadowData, setShadowData] = useState(null);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/shadow_metrics`)
-      .then((res) => res.json())
-      .then((res) => setShadowData(res))
-      .catch((err) => console.error("Error fetching shadow metrics:", err));
-  }, []);
 
   const fetchInstitutes = async (selectedDomain) => {
     try {
@@ -274,7 +307,7 @@ const IITGAnalysis = () => {
       .map((m) => ({
         code: m.id,
         area: m.domain_label,
-        gap: Number((((m.hyderabad - m.guwahati) / m.max) * 100).toFixed(2)),
+        gap: Number((((m.peer - m.guwahati) / m.max) * 100).toFixed(2)),
       }))
       .filter((row) => row.gap > 0)
       .sort((a, b) => b.gap - a.gap)
@@ -404,24 +437,22 @@ const IITGAnalysis = () => {
           )}
         </section>
 
+        <ShadowMetricsChart onDataChange={setShadowData} />
+
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
             Top improvement areas of IITG
           </h2>
           <p className="mb-4 text-sm text-gray-300">
-            These are the biggest current gaps against IIT Hyderabad.
-    
+            These are the biggest current gaps against {shadowData?.peer || "the selected institute"}.
           </p>
-          <br></br>
           {improvementAreas.length ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {improvementAreas.map((item) => (
                 <div key={item.code} className="rounded-xl border border-gray-700 bg-gray-900/40 p-4">
-                  <p className="text-sm font-semibold text-cyan-300">
-                    {item.code}
-                  </p>
+                  <p className="text-sm font-semibold text-cyan-300">{item.code}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    IIT Hyderabad leads by a margin of {item.gap.toFixed(2)}%.
+                    {shadowData?.peer || "Peer institute"} leads by a margin of {item.gap.toFixed(2)}%.
                   </p>
                 </div>
               ))}
@@ -429,16 +460,41 @@ const IITGAnalysis = () => {
           ) : (
             <p className="text-sm text-gray-400">Gap data is loading...</p>
           )}
-          <br></br>
-          <ul className="list-disc pl-6 mt-4 space-y-1 text-sm text-gray-300">
-            <li>Bridge the gap in FQE by hiring experienced professors with high citation counts and terminal degrees.</li>
-            <li>Improve faculty to student ratio through aggressive department-specific hiring.</li>
-            <li>Increase national reputation by strategically showcasing high-impact industry collaborations and breakthrough research success stories.</li>
-            <li>Focus on better utilization of the financial resources to improve FRU scores.</li>
-          </ul>
         </section>
 
-        <ShadowMetricsChart />
+        <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
+            What can IITG do better?
+          </h2>
+          <p className="mb-4 text-sm text-gray-300">
+            IIT Guwahati must improve how it brands and presents itself to the outside world, not just in terms of research and academics,
+            but also in visibility, perception, and ecosystem development—areas where IIT Madras, IIT Bombay, and IIT Delhi are already far ahead.
+          </p>
+          <div className="space-y-3">
+            {IITG_BETTER_AREAS.map((area, idx) => {
+              const isOpen = openBetterArea === idx;
+              return (
+                <div key={area.title} className="rounded-lg border border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => setOpenBetterArea(isOpen ? null : idx)}
+                    className="flex w-full items-center justify-between bg-gray-800 px-4 py-3 text-left"
+                  >
+                    <span className="text-sm font-semibold text-cyan-300">{area.title}</span>
+                    <span className="text-xs text-gray-300">{isOpen ? "▲" : "▼"}</span>
+                  </button>
+                  {isOpen && (
+                    <ul className="list-disc space-y-2 bg-gray-900 px-8 py-4 text-sm text-gray-300">
+                      {area.points.map((point) => (
+                        <li key={point}>{point}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
       </div>
     </div>
