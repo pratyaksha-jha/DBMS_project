@@ -556,9 +556,11 @@ const S = {
   },
 
   teamGrid: {
+    width: '100%',
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-    gap: 20,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: 24,
+    alignItems: 'stretch',
   },
   memberCard: {
     background: 'var(--surface)', borderRadius: 18, overflow: 'hidden',
