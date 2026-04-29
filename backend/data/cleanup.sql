@@ -1,0 +1,12 @@
+-- UPDATE para_2025
+-- SET SS = SS / 100.0
+-- WHERE SS > 20;
+-- SET FSR = FSR/100.0
+-- WHERE FSR > 30
+-- SET FQE = FQE/100.0
+-- Where FQE >20
+-- set PU = PU/100.0
+-- Where PU>35
+-- set OE_MIR= OE_MIR/100.0
+-- WHERE OE_MIR>15
+ALTER TABLE para_2025 DROP COLUMN QP;
