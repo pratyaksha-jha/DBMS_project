@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import saharshiniPhoto from './saharshini.jpg';
-import pratyakshaPhoto from './pratyaksha.jpg';
-import somitaPhoto     from './somita.jpg';
-import sharanyaPhoto   from './sharanya.jpg';
-import yasaswiPhoto    from './yasaswi.jpg';
+import saharshiniPhoto from './pictures/saharshini.jpg';
+import pratyakshaPhoto from './pictures/pratyaksha.jpg';
+import somitaPhoto     from './pictures/somita.jpg';
+import sharanyaPhoto   from './pictures/sharanya.jpg';
+import yasaswiPhoto    from './pictures/yasaswi.jpg';
 
 
 const TEAM = [
   { name: 'Nayakwadi Saharshini', roll: '240150021', initials: 'NS', photo: saharshiniPhoto },
   { name: 'Pratyaksha Jha',       roll: '240150025', initials: 'PJ', photo: pratyakshaPhoto },
-  { name: 'Somita Agarwal',       roll: '240150036', initials: 'SA', photo: somitaPhoto     },
+  { name: 'Somita Agarwal',       roll: '240150035', initials: 'SA', photo: somitaPhoto     },
   { name: 'Sunkari Sharanya',     roll: '240150036', initials: 'SS', photo: sharanyaPhoto   },
   { name: 'Yendluri Yasaswi',     roll: '240150040', initials: 'YY', photo: yasaswiPhoto    },
 ];
