@@ -419,8 +419,12 @@ const IITGAnalysis = () => {
           {chartInsights ? (
             <ul className="list-disc pl-6 space-y-2 text-sm text-gray-300">
               <li>
-                In {chartInsights.endYear}, IIT Guwahati trails {chartInsights.peerName} by{" "}
-                <span className="font-bold text-red-300">{chartInsights.diff2025.toFixed(2)} points</span>.
+                In {chartInsights.endYear}, IIT Guwahati{" "}
+                {chartInsights.diff2025 > 0 ? (
+                  <>trails {chartInsights.peerName} by <span className="font-bold text-red-400">{chartInsights.diff2025.toFixed(2)} points</span></>
+                ) : (
+                  <>leads {chartInsights.peerName} by <span className="font-bold text-green-400">{Math.abs(chartInsights.diff2025).toFixed(2)} points</span></>
+                )}.
               </li>
               <li>
                 IIT Guwahati trend ({chartInsights.startYear}-{chartInsights.endYear}) is{" "}

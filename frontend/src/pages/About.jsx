@@ -382,7 +382,7 @@ const S = {
   root: {
     minHeight: '100vh', width: '100%', maxWidth: '100%',
     overflowX: 'hidden', background: '#f4f6f9',
-    fontFamily: "'DM Sans','Segoe UI',sans-serif",
+    fontFamily: 'inherit',
     margin: 0, padding: 0, boxSizing: 'border-box',
   },
 
@@ -402,7 +402,7 @@ const S = {
   },
   brandName: {
     display: 'block', fontSize: 25, fontWeight: 700, color: '#fff',
-    letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: "'Georgia',serif",
+    letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: 'inherit',
   },
   brandSub: {
     display: 'block', fontSize: 11.5, color: '#f5a623',
@@ -445,7 +445,7 @@ const S = {
   },
   heroTitle: {
     fontSize: 50, fontWeight: 700, color: '#fff',
-    margin: '0 0 18px', fontFamily: "'Georgia','Times New Roman',serif",
+    margin: '0 0 18px', fontFamily: 'inherit',
     letterSpacing: '-0.01em', lineHeight: 1.1,
   },
   heroSub: {
@@ -464,7 +464,7 @@ const S = {
   },
   statVal: {
     fontSize: 24, fontWeight: 700, color: '#f5a623',
-    fontFamily: "'Georgia',serif", letterSpacing: '-0.02em',
+    fontFamily: 'inherit', letterSpacing: '-0.02em',
   },
   statLbl: {
     fontSize: 10, color: 'rgba(255,255,255,0.42)',
@@ -483,7 +483,7 @@ const S = {
   },
   secTitle: {
     fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: '0 0 8px',
-    fontFamily: "'Georgia',serif", letterSpacing: '-0.01em',
+    fontFamily: 'inherit', letterSpacing: '-0.01em',
   },
 
   projectGrid: {
@@ -533,7 +533,7 @@ const S = {
   profInfo:     { flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 },
   profName: {
     fontSize: 22, fontWeight: 700, color: '#0f1f3d',
-    margin: 0, fontFamily: "'Georgia',serif",
+    margin: 0, fontFamily: 'inherit',
   },
   profRole:     { fontSize: 13, color: '#6b7280', margin: 0, fontWeight: 500 },
   profDeptLink: {
@@ -585,7 +585,7 @@ const S = {
   },
   avatarInitials: {
     fontSize: 26, fontWeight: 700,
-    fontFamily: "'Georgia',serif", lineHeight: 1,
+    fontFamily: 'inherit', lineHeight: 1,
   },
   memberName: {
     fontSize: 13.5, fontWeight: 700, color: '#0f1f3d',
@@ -593,7 +593,7 @@ const S = {
   },
   memberRoll: {
     fontSize: 11.5, color: '#9ca3af', margin: '0 0 12px',
-    fontFamily: 'monospace', letterSpacing: '0.04em',
+    fontFamily: 'inherit', letterSpacing: '0.04em',
   },
   degreeBadge: {
     fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',

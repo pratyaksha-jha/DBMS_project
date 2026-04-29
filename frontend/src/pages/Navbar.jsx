@@ -53,7 +53,7 @@ function NavBtn({ label, onClick }) {
       maxWidth: '100%',
       overflowX: 'hidden',
       background: '#f4f6f9',
-      fontFamily: "'DM Sans','Segoe UI',sans-serif",
+      fontFamily: 'inherit',
       margin: 0,
       padding: 0,
       boxSizing: 'border-box',
@@ -81,7 +81,7 @@ function NavBtn({ label, onClick }) {
     },
     brandName: {
       display: 'block', fontSize: 25, fontWeight: 700, color: '#fff',
-      letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: "'Georgia',serif",
+      letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: 'inherit',
     },
     brandSub: {
       display: 'block', fontSize: 11.5, color: '#f5a623',

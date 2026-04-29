@@ -259,7 +259,7 @@ const S = {
     maxWidth: '100%',
     overflowX: 'hidden',
     background: '#f4f6f9',
-    fontFamily: "'DM Sans','Segoe UI',sans-serif",
+    fontFamily: 'inherit',
     margin: 0,
     padding: 0,
     boxSizing: 'border-box',
@@ -287,7 +287,7 @@ const S = {
   },
   brandName: {
     display: 'block', fontSize: 25, fontWeight: 700, color: '#fff',
-    letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: "'Georgia',serif",
+    letterSpacing: '0.06em', lineHeight: 1.1, fontFamily: 'inherit',
   },
   brandSub: {
     display: 'block', fontSize: 11.5, color: '#f5a623',
@@ -336,7 +336,7 @@ const S = {
   },
   heroTitle: {
     fontSize: 50, fontWeight: 700, color: '#fff',
-    margin: '0 0 18px', fontFamily: "'Georgia','Times New Roman',serif",
+    margin: '0 0 18px', fontFamily: 'inherit',
     letterSpacing: '-0.01em', lineHeight: 1.1,
   },
   heroSub: {
@@ -355,7 +355,7 @@ const S = {
   },
   statVal: {
     fontSize: 24, fontWeight: 700, color: '#f5a623',
-    fontFamily: "'Georgia',serif", letterSpacing: '-0.02em',
+    fontFamily: 'inherit', letterSpacing: '-0.02em',
   },
   statLbl: {
     fontSize: 10, color: 'rgba(255,255,255,0.42)',
@@ -373,7 +373,7 @@ const S = {
   },
   secTitle: {
     fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: 0,
-    fontFamily: "'Georgia',serif", letterSpacing: '-0.01em',
+    fontFamily: 'inherit', letterSpacing: '-0.01em',
   },
   cardGrid: {
     display: 'grid',
@@ -391,7 +391,7 @@ const S = {
   },
   cardTitle: {
     fontSize: 18, fontWeight: 700, margin: 0,
-    transition: 'color 0.22s', fontFamily: "'Georgia',serif",
+    transition: 'color 0.22s', fontFamily: 'inherit',
   },
   cardDesc: {
     fontSize: 13, margin: 0, lineHeight: 1.6,
