@@ -16,9 +16,9 @@ const TEAM = [
 ];
 
 const PORTAL_STATS = [
-  { value: '5',   label: 'Years of Data' },
+  { value: '5+',   label: 'Years of Data' },
   { value: '4',   label: 'Ranking Domains' },
-  { value: '355', label: 'Institutions' },
+  { value: '350+', label: 'Institutions' },
   { value: '36',  label: 'States & UTs' },
 ];
 

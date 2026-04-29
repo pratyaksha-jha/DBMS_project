@@ -59,7 +59,8 @@ function NavBtn({ label, onClick }) {
       boxSizing: 'border-box',
     },
     nav: {
-      width: '100%',
+      width: '100vw',
+      marginLeft: 'calc(-50vw + 50%)',
       boxSizing: 'border-box',
       background: 'var(--surface-strong)',
       position: 'sticky',

@@ -79,9 +79,9 @@ const domains = [
 ];
 
 const stats = [
-  { value: '6,000+', label: 'Institutions Ranked' },
-  { value: '13', label: 'Ranking Categories' },
-  { value: '2015', label: 'Established' },
+  { value: '350+', label: 'Institutions Ranked' },
+  { value: '4', label: 'Ranking Categories' },
+  { value: '2026', label: 'Established' },
   { value: '36', label: 'States & UTs Covered' },
 ];
 

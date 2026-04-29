@@ -25,8 +25,21 @@ const toPercent = (value, max) => {
   return Number(Math.min(100, Math.max(0, raw)).toFixed(2));
 };
 
-const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
+const ShadowMetricsChart = ({ domain, institute, parameters, onDataChange }) => {
   const [data, setData] = useState(null);
+
+  const maxScoreMap = useMemo(() => {
+    const map = {};
+    if (parameters) {
+      parameters.forEach(param => {
+        map[param.code] = 100;
+        param.factors.forEach(f => {
+          map[f.code] = f.subWeight;
+        });
+      });
+    }
+    return map;
+  }, [parameters]);
 
   useEffect(() => {
     if (!domain || !institute) return;
@@ -56,7 +69,10 @@ const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
       datasets: [
         {
           label: "IIT Guwahati",
-          data: data.metrics.map((m) => toPercent(m.guwahati, m.max)),
+          data: data.metrics.map((m) => {
+            const correctMax = maxScoreMap[m.id] || m.max || 1;
+            return toPercent(m.guwahati, correctMax);
+          }),
           backgroundColor: "rgba(227, 237, 240, 0.95)",
           borderColor: "rgb(67, 27, 177)",
           borderWidth: 1,
@@ -68,7 +84,10 @@ const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
         },
         {
           label: data.peer || "Peer institute",
-          data: data.metrics.map((m) => toPercent(m.peer, m.max)),
+          data: data.metrics.map((m) => {
+            const correctMax = maxScoreMap[m.id] || m.max || 1;
+            return toPercent(m.peer, correctMax);
+          }),
           backgroundColor: "rgba(59, 130, 246, 0.4)",
           borderColor: "rgba(96, 165, 250, 0.8)",
           borderWidth: 1,
@@ -81,7 +100,7 @@ const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
       ],
     }
         : null,
-    [data, labels]
+    [data, labels, maxScoreMap] 
   );
 
   const options = useMemo(
@@ -103,9 +122,10 @@ const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
             },
             afterLabel: (context) => {
               const metric = data.metrics[context.dataIndex];
+              const correctMax = maxScoreMap[metric.id] || metric.max || 1;
               const rawValue =
                 context.dataset.label === "IIT Guwahati" ? metric.guwahati : metric.peer;
-              return `Raw: ${rawValue}/${metric.max}`;
+              return `Raw: ${rawValue}/${correctMax}`;
             },
           },
         },

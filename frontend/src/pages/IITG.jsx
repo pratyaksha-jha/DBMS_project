@@ -233,14 +233,28 @@ const IITG_BETTER_AREAS = [
   {
     title: "startup culture",
     points: [
-      "Finally, IITG must develop a real startup culture instead of relying only on academic excellence. While institutes like IIT Madras and IIT Bombay have thriving ecosystems supported by large incubators and frequent funding readiness workshops, IITG’s Technology Incubation Centre (Tihub) and BioNEST are under utilized and not prominently marketed. To promote a startup culture, IITG should:",
+      "IITG must develop a real startup culture instead of relying only on academic excellence. While institutes like IIT Madras and IIT Bombay have thriving ecosystems supported by large incubators and frequent funding readiness workshops, IITG’s Technology Incubation Centre (Tihub) and BioNEST are under utilized and not prominently marketed. To promote a startup culture, IITG should:",
       "Expand incubation centres with more seed funding, mentor networks, and angel investor connects.",
       "Run regular startup bootcamps, hackathons, and demo days featuring industry judges and media coverage.",
       "Integrate entrepreneurship courses and mini MBA style modules into the curriculum so more students view startups as a viable career path.",
       "By improving social media marketing, website design, industry partnerships, specialized clubs, sports outreach, and startup culture, IIT Guwahati can not only increase its TLR and Perception (PR) scores in NIRF but also position itself as a truly competitive, modern institute on par with the top ranked IITs.",
     ],
   },
+  {
+    title :"better utilisation",
+    points:[
+      "IIT Guwahati has a budget more than IIT Hyderabad. But even despite this the fund utilisation of IIT Guwahati is lesser and the amount the college spends on  "
+    ]
+  }
 ];
+// iitg lib - 13 cr , iith lib - 2 cr 
+// equip - 50 cr, iith - 33 cr
+// capital assets - 49 cr , 40 cr
+//salaries 197 cr , 145 cr
+//fac - 460 , 282
+// mainte - <
+// fru - annual capital expend & annual __ exp per student for prev 3 yrs 
+// 18.32 , 25.71
 
 
 
@@ -270,7 +284,6 @@ const IITGAnalysis = () => {
       console.error("Error fetching institutes:", err);
     }
   };
-
   
   const fetchGraph = async (selectedInstitute, selectedDomain) => {
     if (!selectedInstitute) return;
@@ -395,18 +408,30 @@ const IITGAnalysis = () => {
     };
   }, [chartData]);
 
-  const improvementAreas = useMemo(() => {
+const improvementAreas = useMemo(() => {
     if (!shadowData?.metrics) return [];
+
+    const maxScoreMap = {};
+    currentParams.forEach(param => {
+      maxScoreMap[param.code] = 100;
+      param.factors.forEach(f => {
+        maxScoreMap[f.code] = f.subWeight;
+      });
+    });
+
     return [...shadowData.metrics]
-      .map((m) => ({
-        code: m.id,
-        area: m.domain_label,
-        gap: Number((((m.peer - m.guwahati) / m.max) * 100).toFixed(2)),
-      }))
+      .map((m) => {
+        const correctMax = maxScoreMap[m.id] || m.max || 1; 
+        return {
+          code: m.id,
+          area: m.domain_label,
+          gap: Number((((m.peer - m.guwahati) / correctMax) * 100).toFixed(2)),
+        };
+      })
       .filter((row) => row.gap > 0)
       .sort((a, b) => b.gap - a.gap)
       .slice(0, 4);
-  }, [shadowData]);
+  }, [shadowData, currentParams]);
 
   return (
     <div className="flex w-full flex-col items-center bg-[#0b0f1a]   text-gray-100 sm:px-8">
@@ -544,6 +569,7 @@ const IITGAnalysis = () => {
           domain={domain}
           institute={institute}
           onDataChange={setShadowData}
+          parameters={currentParams}
         />
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
