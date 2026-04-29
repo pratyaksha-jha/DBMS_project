@@ -1,11 +1,9 @@
-import json
 import os
 import sqlite3
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
 DB_PATH = os.path.join(DATA_DIR, "clean_nirf.db")
-SHADOW_METRICS_JSON = os.path.join(DATA_DIR, "shadow_metrics.json")
 
 IIT_GUWAHATI_NAME = "Indian Institute of Technology Guwahati"
 IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad"
@@ -174,11 +172,10 @@ def linegraph(domain, institute):
 
     conn.close()
 
-    # Build year -> score dicts
     iitgdata = {row["year"]: row["score"] for row in iitgrows}
     instdata = {row["year"]: row["score"] for row in instrows}
 
-    # Union of all years, sorted
+    
     years = sorted(set(iitgdata.keys()) | set(instdata.keys()))
 
     return {
@@ -189,10 +186,100 @@ def linegraph(domain, institute):
     }
 
 
-def get_shadow_metric_comparison():
-    """Load IIT Guwahati vs IIT Hyderabad parameter scores from data/shadow_metrics.json (from ghu.jpg / hyd.jpg snapshots)."""
-    with open(SHADOW_METRICS_JSON, encoding="utf-8") as f:
-        return json.load(f)
+def get_shadow_metric_comparison(domain: str, institute: str):
+    """Compare IIT Guwahati with selected institute using para_2025 metrics."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    domain_l = (domain or "").strip().lower()
+    institute_name = (institute or "").strip()
+    if not domain_l:
+        domain_l = "overall"
+
+    
+    base_metric_specs = [
+        ("SS", "TLR", 20),
+        ("FSR", "TLR", 30),
+        ("FQE", "TLR", 20),
+        ("FRU", "TLR", 30),
+        ("PU", "RP", 35),
+        ("IPR", "RP", 15),
+        ("FPPP", "RP", 10),
+        ("GPH", "GO", 40),
+        ("GUE", "GO", 15),
+        ("MS", "GO", 25),
+        ("GPHD", "GO", 20),
+        ("RD", "OI", 30),
+        ("WD", "OI", 30),
+        ("ESCS", "OI", 20),
+        ("PCS", "OI", 20),
+        ("PR", "PR", 100),
+        ("OE_MIR", "OE_MIR", 100),
+    ]
+
+    if domain_l == "overall":
+        excluded_metrics = {"GPH", "MS"}
+    elif domain_l == "engineering":
+        excluded_metrics = {"OE_MIR"}
+    else:
+        excluded_metrics = set()
+
+    metric_specs = [m for m in base_metric_specs if m[0] not in excluded_metrics]
+
+    metric_columns = ", ".join([m[0] for m in metric_specs])
+
+    query = f"""
+        SELECT {metric_columns}
+        FROM para_2025 p
+        JOIN institutes i ON i.id = p.id
+        WHERE LOWER(i.name) = LOWER(?)
+          AND LOWER(p.domain) = LOWER(?)
+    """
+
+    cursor.execute(query, (IIT_GUWAHATI_NAME, domain_l))
+    iitg_row = cursor.fetchone()
+
+    cursor.execute(query, (institute_name, domain_l))
+    peer_row = cursor.fetchone()
+
+    conn.close()
+
+    if not iitg_row:
+        return {
+            "domain": domain_l,
+            "peer": institute_name,
+            "metrics": [],
+            "error": f"No para_2025 data found for {IIT_GUWAHATI_NAME} in {domain_l}.",
+        }
+
+    if not peer_row:
+        return {
+            "domain": domain_l,
+            "peer": institute_name,
+            "metrics": [],
+            "error": f"No para_2025 data found for {institute_name} in {domain_l}.",
+        }
+
+    metrics = []
+    for idx, (metric_id, domain_label, max_score) in enumerate(metric_specs):
+        iitg_val = iitg_row[idx]
+        peer_val = peer_row[idx]
+        metrics.append(
+            {
+                "id": metric_id,
+                "domain": domain_label,
+                "domain_label": domain_label,
+                "max": max_score,
+                "guwahati": float(iitg_val) if iitg_val is not None else 0.0,
+                "peer": float(peer_val) if peer_val is not None else 0.0,
+            }
+        )
+
+    return {
+        "domain": domain_l,
+        "peer": institute_name,
+        "metrics": metrics,
+    }
     
 
 def iitg_iith(domain):

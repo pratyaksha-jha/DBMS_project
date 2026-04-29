@@ -58,8 +58,8 @@ def api_line_graph(domain: str, institute: str):
 
 
 @app.get("/api/shadow_metrics")
-def api_shadow_metrics():
-    return get_shadow_metric_comparison()
+def api_shadow_metrics(domain: str = "overall", institute: str = "Indian Institute of Technology Hyderabad"):
+    return get_shadow_metric_comparison(domain.strip().lower(), institute.strip())
 
 @app.get("/api/iitg_iith")
 def api_iitg_iith(domain: str):
