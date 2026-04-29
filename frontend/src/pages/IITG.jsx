@@ -231,7 +231,7 @@ const IITG_BETTER_AREAS = [
       "Fifth, sports and extra curricular excellence directly boost perception. IIT Madras has introduced sports quotas, actively recruiting talented athletes and strengthening its inter IIT sports performance, which in turn improves its brand image as a “well balanced” institute. A strong presence in national level tournaments, festivals, and championships generates media coverage and positive word of mouth, both of which feed into the Perception parameter in NIRF and other rankings. IITG should invest in sports infrastructure, coaching, and incentives for athletes, and publicize its sports successes widely on social media and the homepage"],
   },
   {
-    title: "startup culture",
+    title: "Startup Culture",
     points: [
       "IITG must develop a real startup culture instead of relying only on academic excellence. While institutes like IIT Madras and IIT Bombay have thriving ecosystems supported by large incubators and frequent funding readiness workshops, IITG’s Technology Incubation Centre (Tihub) and BioNEST are under utilized and not prominently marketed. To promote a startup culture, IITG should:",
       "Expand incubation centres with more seed funding, mentor networks, and angel investor connects.",
@@ -241,9 +241,9 @@ const IITG_BETTER_AREAS = [
     ],
   },
   {
-    title :"better utilisation",
+    title :"Better Utilisation of Funds",
     points:[
-      "IIT Guwahati has a budget more than IIT Hyderabad. But even despite this the fund utilisation of IIT Guwahati is lesser and the amount the college spends on  "
+      "IIT Guwahati has a budget more than IIT Hyderabad. But even despite this the fund utilisation of IIT Guwahati is lesser and the amount the college spends per student is significantly lower than other top institutes. We need to improve budget utilisation , spend more money on essential amenities and thoroughly monitor the expenditure."
     ]
   }
 ];
