@@ -8,7 +8,6 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import SearchableSelect from "./SearchableSelect";
 import { API_BASE } from "../lib/api";
 
 ChartJS.register(
@@ -19,46 +18,15 @@ ChartJS.register(
   Legend
 );
 
-const IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad";
-const ALLOWED_DOMAINS = ["Overall", "Engineering"];
+const toPercent = (value, max) => {
+  const safeMax = Number(max);
+  if (!safeMax || safeMax <= 0) return 0;
+  const raw = (Number(value) / safeMax) * 100;
+  return Number(Math.min(100, Math.max(0, raw)).toFixed(2));
+};
 
-const ShadowMetricsChart = ({ onDataChange }) => {
+const ShadowMetricsChart = ({ domain, institute, onDataChange }) => {
   const [data, setData] = useState(null);
-  const [domains, setDomains] = useState([]);
-  const [institutes, setInstitutes] = useState([]);
-  const [domain, setDomain] = useState("");
-  const [institute, setInstitute] = useState("");
-
-  useEffect(() => {
-    fetch(`${API_BASE}/institute_analysis/domains`)
-      .then((res) => res.json())
-      .then((res) => {
-        const list = (res.domains || [])
-          .filter((d) => ALLOWED_DOMAINS.some((allowed) => allowed.toLowerCase() === String(d).toLowerCase()))
-          .sort((a, b) => a.localeCompare(b));
-        setDomains(list);
-        const overall = list.find((x) => /^overall$/i.test(String(x)));
-        setDomain(overall || list[0] || "");
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    if (!domain) return;
-    fetch(`${API_BASE}/api/institutes?domain=${encodeURIComponent(domain)}`)
-      .then((res) => res.json())
-      .then((res) => {
-        const list = (Array.isArray(res) ? res : []).filter(Boolean);
-        setInstitutes(list);
-        const defaultInstitute = list.includes(IIT_HYDERABAD_NAME) ? IIT_HYDERABAD_NAME : list[0] || "";
-        setInstitute(defaultInstitute);
-      })
-      .catch((err) => {
-        console.error(err);
-        setInstitutes([]);
-        setInstitute("");
-      });
-  }, [domain]);
 
   useEffect(() => {
     if (!domain || !institute) return;
@@ -88,7 +56,7 @@ const ShadowMetricsChart = ({ onDataChange }) => {
       datasets: [
         {
           label: "IIT Guwahati",
-          data: data.metrics.map((m) => Number(((m.guwahati / m.max) * 100).toFixed(2))),
+          data: data.metrics.map((m) => toPercent(m.guwahati, m.max)),
           backgroundColor: "rgba(227, 237, 240, 0.95)",
           borderColor: "rgb(67, 27, 177)",
           borderWidth: 1,
@@ -100,7 +68,7 @@ const ShadowMetricsChart = ({ onDataChange }) => {
         },
         {
           label: data.peer || "Peer institute",
-          data: data.metrics.map((m) => Number(((m.peer / m.max) * 100).toFixed(2))),
+          data: data.metrics.map((m) => toPercent(m.peer, m.max)),
           backgroundColor: "rgba(59, 130, 246, 0.4)",
           borderColor: "rgba(96, 165, 250, 0.8)",
           borderWidth: 1,
@@ -169,26 +137,6 @@ const ShadowMetricsChart = ({ onDataChange }) => {
       <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
         Shadow plot: IIT Guwahati vs selected institute
       </h2>
-      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Domain</label>
-          <SearchableSelect
-            options={domains}
-            value={domain}
-            onChange={setDomain}
-            placeholder="Select domain"
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Peer institute</label>
-          <SearchableSelect
-            options={institutes}
-            value={institute}
-            onChange={setInstitute}
-            placeholder="Select institute"
-          />
-        </div>
-      </div>
       <p className="text-sm text-gray-300 mb-4">
         Dynamic parameter comparison from para_2025, normalized by each parameter maximum.
       </p>

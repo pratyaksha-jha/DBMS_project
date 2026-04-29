@@ -28,7 +28,98 @@ const DOMAINS = [
 ];
 const IIT_HYDERABAD_NAME = "Indian Institute of Technology Hyderabad";
 
-const NIRF_PARAMETERS = [
+const NIRF_PARAMETERS_BY_DOMAIN = {
+  overall: [
+    {
+      code: "TLR",
+      name: "Teaching, Learning & Resources",
+      weightPct: 30,
+      factors: [
+        {
+          code: "SS",
+          label: "Student Strength including Doctoral Students.",
+          subWeight: 20,
+        },
+        {
+          code: "FSR",
+          label: "Faculty Student Ratio.",
+          subWeight: 25,
+        },
+        {
+          code: "FQE",
+          label: "Faculty Qualification and Experience.",
+          subWeight: 20,
+        },
+        { code: "FRU", label: "Financial Resources and Utilisation.", subWeight: 20 },
+        {
+          code: "OE",
+          label: "Online Education: Online Completion of Syllabus & Exams and Swayam.",
+          subWeight: 10,
+        },
+        {
+          code: "MIRS",
+          label: "Multiple Entry/Exit, Indian Knowledge System, Regional Languages, and Sustainable Living Practices.",
+          subWeight: 5,
+        },
+      ],
+    },
+    {
+      code: "RP",
+      name: "Research and Professional Practice",
+      weightPct: 30,
+      factors: [
+        { code: "PU", label: "Publications", subWeight: 35 },
+        { code: "QP", label: "Quality of Publications", subWeight: 35 },
+        { code: "IPR", label: "Intellectual Property Rights", subWeight: 15 },
+        {
+          code: "FPPP",
+          label: "Footprint of Projects & Professional Practice",
+          subWeight: 15,
+        },
+      ],
+    },
+    {
+      code: "GO",
+      name: "Graduation Outcomes",
+      weightPct: 20,
+      factors: [
+        { code: "GUE", label: "Metric for University Examinations", subWeight: 60 },
+        { code: "GPHD", label: "Graduated Ph.D. Students", subWeight: 40 },
+      ],
+    },
+    {
+      code: "OI",
+      name: "Outreach and Inclusivity",
+      weightPct: 10,
+      factors: [
+        {
+          code: "RD",
+          label: "Region Diversity: Percentage of Students from other States/Countries ",
+          subWeight: 30,
+        },
+        { code: "WD", label: "Women Diversity: Percentage of Women.", subWeight: 30 },
+        {
+          code: "ESCS",
+          label: "Economically and Socially Challenged Students",
+          subWeight: 20,
+        },
+        { code: "PCS", label: "Facilities for Physically Challenged Students", subWeight: 20 },
+      ],
+    },
+    {
+      code: "PR",
+      name: "Perception Ranking",
+      weightPct: 10,
+      factors: [
+        {
+          code: "PR",
+          label: "Peer Perception: Employers and Academic Peers",
+          subWeight: 100,
+        },
+      ],
+    },
+  ],
+  engineering: [
   {
     code: "TLR",
     name: "Teaching, Learning & Resources",
@@ -42,7 +133,7 @@ const NIRF_PARAMETERS = [
       {
         code: "FSR",
         label: "Faculty Student Ratio.",
-        subWeight: 30,
+        subWeight: 30, 
       },
       {
         code: "FQE",
@@ -109,7 +200,8 @@ const NIRF_PARAMETERS = [
       },
     ],
   },
-];
+  ],
+};
 
 const IITG_BETTER_AREAS = [
   {
@@ -160,6 +252,7 @@ const IITGAnalysis = () => {
   const [domain, setDomain] = useState("overall");
   const [chartData, setChartData] = useState(null);
   const [shadowData, setShadowData] = useState(null);
+  const currentParams = NIRF_PARAMETERS_BY_DOMAIN[domain] || NIRF_PARAMETERS_BY_DOMAIN.overall;
 
   const fetchInstitutes = async (selectedDomain) => {
     try {
@@ -178,7 +271,7 @@ const IITGAnalysis = () => {
     }
   };
 
-  // Fetch graph data
+  
   const fetchGraph = async (selectedInstitute, selectedDomain) => {
     if (!selectedInstitute) return;
 
@@ -240,6 +333,7 @@ const IITGAnalysis = () => {
 
   useEffect(() => {
     fetchInstitutes(domain);
+    setOpenParam(null);
   }, [domain]);
 
   useEffect(() => {
@@ -322,12 +416,37 @@ const IITGAnalysis = () => {
           IIT Guwahati NIRF Analysis (2021-2025)
         </h1>
         <p className="mt-3 max-w-3xl text-sm text-gray-300">
-          This section focuses on one core question: why IIT Guwahati fell below IIT Hyderabad in
-          2025, and what practical improvements can raise future NIRF performance.
+          This section focuses on what IIT Guwahati can do to improve it's ranking in NIRF and it's comparision with peer institutes.
         </p>
       </header>
 
       <div className="w-full max-w-5xl space-y-8">
+        <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">
+            Comparison controls
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Domain</label>
+              <SearchableSelect
+                options={DOMAINS.map((d) => d.value)}
+                value={domain}
+                onChange={setDomain}
+                placeholder="Select Domain"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Peer institute</label>
+              <SearchableSelect
+                options={institutes}
+                value={institute}
+                onChange={setInstitute}
+                placeholder="Select Institute"
+              />
+            </div>
+          </div>
+        </section>
+
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-4">
             NIRF parameters
@@ -338,7 +457,7 @@ const IITGAnalysis = () => {
           </p>
           <br></br>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {NIRF_PARAMETERS.map((param, index) => {
+            {currentParams.map((param, index) => {
               const isOpen = openParam === index;
 
               return (
@@ -387,26 +506,6 @@ const IITGAnalysis = () => {
             </h2>
             
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-5">
-            <div>
-              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Domain</label>
-              <SearchableSelect
-                options={DOMAINS.map((d) => d.value)}
-                value={domain}
-                onChange={setDomain}
-                placeholder="Select Domain"
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-[10px] font-bold uppercase text-gray-500">Peer institute</label>
-              <SearchableSelect
-                options={institutes}
-                value={institute}
-                onChange={setInstitute}
-                placeholder="Select Institute"
-              />
-            </div>
-          </div>
           <div className="h-[340px] w-full">
             {chartData ? <Line data={chartData} options={chartOptions} /> : <p>Loading chart...</p>}
           </div>
@@ -441,7 +540,11 @@ const IITGAnalysis = () => {
           )}
         </section>
 
-        <ShadowMetricsChart onDataChange={setShadowData} />
+        <ShadowMetricsChart
+          domain={domain}
+          institute={institute}
+          onDataChange={setShadowData}
+        />
 
         <section className="rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-xl">
           <h2 className="text-xs font-bold uppercase tracking-widest text-cyan-500 mb-3">
@@ -474,6 +577,11 @@ const IITGAnalysis = () => {
             IIT Guwahati must improve how it brands and presents itself to the outside world, not just in terms of research and academics,
             but also in visibility, perception, and ecosystem development—areas where IIT Madras, IIT Bombay, and IIT Delhi are already far ahead.
           </p>
+          <br></br>
+          <p className="mb-4 text-sm text-gray-300">By improving social media marketing, website design, industry partnerships, specialized clubs, sports outreach, and startup culture,
+             IIT Guwahati can not only increase its TLR and Perception (PR) scores in NIRF but also position itself as a truly competitive,
+              modern institute on par with the top ranked IITs.</p>
+              <br></br>
           <div className="space-y-3">
             {IITG_BETTER_AREAS.map((area, idx) => {
               const isOpen = openBetterArea === idx;
