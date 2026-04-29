@@ -217,10 +217,10 @@ function DomainCard({ domain, delay, visible, navigate }) {
         opacity: visible ? 1 : 0,
         transform: visible ? (hov ? 'translateY(-6px)' : 'translateY(0)') : 'translateY(22px)',
         transitionDelay: `${delay}ms`,
-        background: hov ? 'linear-gradient(145deg, #0c1e3e 0%, #0f2a52 100%)' : '#ffffff',
+        background: hov ? 'linear-gradient(145deg, #0c1e3e 0%, #0f2a52 100%)' : 'var(--surface)',
         boxShadow: hov
           ? `0 22px 50px rgba(15,31,61,0.20), 0 0 0 1px ${domain.accent}44`
-          : '0 2px 18px rgba(15,31,61,0.07)',
+          : '0 20px 45px rgba(0,0,0,0.08)',
       }}
     >
       <div style={{
@@ -229,18 +229,18 @@ function DomainCard({ domain, delay, visible, navigate }) {
         opacity: hov ? 1 : 0.35, transition: 'opacity 0.25s',
       }} />
 
-      <div style={{ color: hov ? domain.accent : '#0f1f3d', transition: 'color 0.22s', marginBottom: 6, marginTop: 6 }}>
+      <div style={{ color: hov ? domain.accent : 'var(--text)', transition: 'color 0.22s', marginBottom: 6, marginTop: 6 }}>
         {domain.icon}
       </div>
 
-      <h3 style={{ ...S.cardTitle, color: hov ? '#ffffff' : '#0f1f3d' }}>
+      <h3 style={{ ...S.cardTitle, color: hov ? 'var(--text-h)' : 'var(--text)' }}>
         {domain.name}
       </h3>
-      <p style={{ ...S.cardDesc, color: hov ? 'rgba(255,255,255,0.6)' : '#6b7280' }}>
+      <p style={{ ...S.cardDesc, color: hov ? 'rgba(255,255,255,0.75)' : 'var(--text-muted)' }}>
         {domain.description}
       </p>
 
-      <div style={{ color: hov ? domain.accent : '#0f1f3d', transition: 'color 0.22s', marginTop: 8, alignSelf: 'flex-start' }}>
+      <div style={{ color: hov ? domain.accent : 'var(--text)', transition: 'color 0.22s', marginTop: 8, alignSelf: 'flex-start' }}>
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
           <path d="M4 10h12M10 4l6 6-6 6" />
         </svg>
@@ -258,7 +258,7 @@ const S = {
     width: '100%',
     maxWidth: '100%',
     overflowX: 'hidden',
-    background: '#f4f6f9',
+    background: 'var(--bg)',
     fontFamily: 'inherit',
     margin: 0,
     padding: 0,
@@ -267,11 +267,11 @@ const S = {
   nav: {
     width: '100%',
     boxSizing: 'border-box',
-    background: '#0c1e3e',
+    background: 'var(--surface-strong)',
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    borderBottom: '1px solid rgba(245,166,35,0.18)',
+    borderBottom: '1px solid var(--border)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -335,7 +335,7 @@ const S = {
     textTransform: 'uppercase', color: '#f5a623', margin: '0 0 14px',
   },
   heroTitle: {
-    fontSize: 50, fontWeight: 700, color: '#fff',
+    fontSize: 50, fontWeight: 700, color: 'var(--text-h)',
     margin: '0 0 18px', fontFamily: 'inherit',
     letterSpacing: '-0.01em', lineHeight: 1.1,
   },
@@ -345,7 +345,7 @@ const S = {
   },
   statBar: {
     width: '100%', boxSizing: 'border-box',
-    background: '#0f1f3d',
+    background: 'var(--surface-strong)',
     borderBottom: '1px solid rgba(255,255,255,0.06)',
     display: 'flex', justifyContent: 'space-evenly',
   },
@@ -358,7 +358,7 @@ const S = {
     fontFamily: 'inherit', letterSpacing: '-0.02em',
   },
   statLbl: {
-    fontSize: 10, color: 'rgba(255,255,255,0.42)',
+    fontSize: 10, color: 'var(--text)',
     letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500,
   },
   main: {
@@ -372,7 +372,7 @@ const S = {
     textTransform: 'uppercase', color: '#f5a623', display: 'block', marginBottom: 7,
   },
   secTitle: {
-    fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: 0,
+    fontSize: 28, fontWeight: 700, color: 'var(--text-h)', margin: 0,
     fontFamily: 'inherit', letterSpacing: '-0.01em',
   },
   cardGrid: {
@@ -385,28 +385,30 @@ const S = {
     borderRadius: 16, padding: '28px 24px 24px',
     cursor: 'pointer', position: 'relative', overflow: 'hidden',
     transition: 'all 0.28s cubic-bezier(0.34,1.2,0.64,1)',
-    border: '1px solid rgba(15,31,61,0.08)',
+    border: '1px solid var(--border)',
+    background: 'var(--surface)',
     display: 'flex', flexDirection: 'column', gap: 8,
     boxSizing: 'border-box',
+    boxShadow: '0 20px 45px rgba(0,0,0,0.08)',
   },
   cardTitle: {
     fontSize: 18, fontWeight: 700, margin: 0,
-    transition: 'color 0.22s', fontFamily: 'inherit',
+    transition: 'color 0.22s', fontFamily: 'inherit', color: 'var(--text-h)',
   },
   cardDesc: {
     fontSize: 13, margin: 0, lineHeight: 1.6,
-    transition: 'color 0.22s', flex: 1,
+    transition: 'color 0.22s', flex: 1, color: 'var(--text-muted)',
   },
   mapCard: {
-    background: '#fff', borderRadius: 20, padding: '32px',
-    boxShadow: '0 2px 20px rgba(15,31,61,0.07)',
-    border: '1px solid rgba(15,31,61,0.06)',
+    background: 'var(--surface)', borderRadius: 20, padding: '32px',
+    boxShadow: '0 20px 45px rgba(0,0,0,0.08)',
+    border: '1px solid var(--border)',
     width: '100%', boxSizing: 'border-box',
   },
   footer: {
     width: '100%', boxSizing: 'border-box',
     textAlign: 'center', padding: '22px 40px',
-    fontSize: 12, color: '#9ca3af', letterSpacing: '0.02em',
-    borderTop: '1px solid #e5e7eb', background: '#f4f6f9',
+    fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.02em',
+    borderTop: '1px solid var(--border)', background: 'var(--bg)',
   },
 };

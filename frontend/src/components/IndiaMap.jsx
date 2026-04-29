@@ -67,11 +67,14 @@ function IndiaMap() {
         <div className="flex w-full flex-col items-stretch gap-4">
             <h2
                 className="text-sm font-extrabold uppercase tracking-widest drop-shadow-sm"
-                style={{ color: "#0f1f3d" }}
+                style={{ color: "var(--text-h)" }}
             >
                 NIRF 2025 — overall (map)
             </h2>
-            <div className="w-full overflow-x-auto rounded-xl border border-gray-200 bg-white p-2 sm:p-4 shadow-sm">
+            <div
+                className="w-full overflow-x-auto rounded-xl border p-2 sm:p-4 shadow-sm"
+                style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+            >
                 <div className="mx-auto w-full min-w-[280px] max-w-[900px]">
                     <ComposableMap
                         projection="geoMercator"
@@ -90,8 +93,8 @@ function IndiaMap() {
                                                 data-tooltip-id="map-tooltip"
                                                 data-tooltip-html={getStateTooltip(stateName)}
                                                 style={{
-                                                default: { fill: "#f1f5f9", stroke: "#cbd5ef", strokeWidth: 0.5, outline: "none" },
-                                                hover: { fill: "#bae6fd", outline: "none", cursor: "pointer", transition: "all 0.2s ease" },
+                                                default: { fill: 'rgba(34, 211, 238, 0.16)', stroke: 'rgba(34, 211, 238, 0.3)', strokeWidth: 0.75, outline: 'none' },
+                                                hover: { fill: 'rgba(34, 211, 238, 0.32)', outline: 'none', cursor: 'pointer', transition: 'all 0.2s ease' },
                                                 }}
                                             />
                                         );
@@ -108,8 +111,8 @@ function IndiaMap() {
                                         >
                                             <circle
                                                 r={3}
-                                                fill="#22d3ee"
-                                                stroke="#ffffff"
+                                                fill="var(--text)"
+                                                stroke="var(--surface)"
                                                 strokeWidth={1}
                                                 data-tooltip-id="map-tooltip"
                                                 data-tooltip-html={`

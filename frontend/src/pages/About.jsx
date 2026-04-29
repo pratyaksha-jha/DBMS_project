@@ -381,24 +381,24 @@ function Tag({ label, color }) {
 const S = {
   root: {
     minHeight: '100vh', width: '100%', maxWidth: '100%',
-    overflowX: 'hidden', background: '#f4f6f9',
+    overflowX: 'hidden', background: 'var(--bg)',
     fontFamily: 'inherit',
     margin: 0, padding: 0, boxSizing: 'border-box',
   },
 
   nav: {
     width: '100%', boxSizing: 'border-box',
-    background: '#0c1e3e', position: 'sticky', top: 0, zIndex: 100,
-    borderBottom: '1px solid rgba(245,166,35,0.18)',
+    background: 'var(--surface-strong)', position: 'sticky', top: 0, zIndex: 100,
+    borderBottom: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '0 40px', height: 70,
   },
   brandGroup:  { display: 'flex', alignItems: 'center', gap: 13, flexShrink: 0 },
   brandEmblem: {
     width: 46, height: 46, borderRadius: 11,
-    border: '1px solid rgba(245,166,35,0.32)',
+    border: '1px solid var(--accent-border)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(245,166,35,0.07)',
+    background: 'var(--surface-soft)',
   },
   brandName: {
     display: 'block', fontSize: 25, fontWeight: 700, color: '#fff',
@@ -454,8 +454,8 @@ const S = {
   },
 
   statBar: {
-    width: '100%', boxSizing: 'border-box', background: '#0f1f3d',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    width: '100%', boxSizing: 'border-box', background: 'var(--surface)',
+    borderBottom: '1px solid var(--border)',
     display: 'flex', justifyContent: 'space-evenly',
   },
   statItem: {
@@ -482,7 +482,7 @@ const S = {
     textTransform: 'uppercase', color: '#f5a623', display: 'block', marginBottom: 7,
   },
   secTitle: {
-    fontSize: 28, fontWeight: 700, color: '#0f1f3d', margin: '0 0 8px',
+    fontSize: 28, fontWeight: 700, color: 'var(--text-h)', margin: '0 0 8px',
     fontFamily: 'inherit', letterSpacing: '-0.01em',
   },
 
@@ -492,9 +492,9 @@ const S = {
     gap: 20,
   },
   projectCard: {
-    background: '#fff', borderRadius: 16, padding: '28px 24px',
-    border: '1px solid rgba(15,31,61,0.08)',
-    boxShadow: '0 2px 18px rgba(15,31,61,0.06)',
+    background: 'var(--surface)', borderRadius: 16, padding: '28px 24px',
+    border: '1px solid var(--border)',
+    boxShadow: '0 20px 45px rgba(0,0,0,0.08)',
     display: 'flex', flexDirection: 'column',
   },
   featureIconWrap: (color) => ({
@@ -503,17 +503,17 @@ const S = {
     background: `${color}14`, color, border: `1px solid ${color}28`,
   }),
   featureTitle: {
-    fontSize: 15.5, fontWeight: 700, color: '#0f1f3d',
+    fontSize: 15.5, fontWeight: 700, color: 'var(--text-h)',
     margin: '0 0 10px', letterSpacing: '-0.01em',
   },
   featureDesc: {
-    fontSize: 13.5, color: '#4b5563', lineHeight: 1.7, margin: 0,
+    fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.7, margin: 0,
   },
 
   profCard: {
-    background: '#fff', borderRadius: 20, overflow: 'hidden',
-    border: '1px solid rgba(15,31,61,0.08)',
-    boxShadow: '0 4px 32px rgba(15,31,61,0.08)',
+    background: 'var(--surface)', borderRadius: 20, overflow: 'hidden',
+    border: '1px solid var(--border)',
+    boxShadow: '0 20px 45px rgba(0,0,0,0.08)',
     position: 'relative',
   },
   profStrip: {
@@ -527,26 +527,26 @@ const S = {
   profAvatarWrap: {
     width: 140, height: 140, borderRadius: 16, overflow: 'hidden',
     border: '3px solid rgba(245,166,35,0.3)', flexShrink: 0,
-    background: '#f3f4f6',
+    background: 'var(--surface-soft)',
   },
   profAvatar:   { width: '100%', height: '100%', objectFit: 'cover' },
   profInfo:     { flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 },
   profName: {
-    fontSize: 22, fontWeight: 700, color: '#0f1f3d',
+    fontSize: 22, fontWeight: 700, color: 'var(--text-h)',
     margin: 0, fontFamily: 'inherit',
   },
-  profRole:     { fontSize: 13, color: '#6b7280', margin: 0, fontWeight: 500 },
+  profRole:     { fontSize: 13, color: 'var(--text-muted)', margin: 0, fontWeight: 500 },
   profDeptLink: {
     fontSize: 13.5, color: '#3b82f6', fontWeight: 600,
     textDecoration: 'none', transition: 'color 0.18s',
   },
   profInstLink: {
-    fontSize: 13, color: '#9ca3af', textDecoration: 'none',
+    fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none',
     transition: 'color 0.18s',
   },
   profTagRow: { display: 'flex', gap: 8, flexWrap: 'wrap' },
   profBio: {
-    fontSize: 13.5, color: '#4b5563', lineHeight: 1.72, margin: 0,
+    fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.72, margin: 0,
   },
   profLink: {
     display: 'inline-block', padding: '9px 22px',
@@ -561,8 +561,8 @@ const S = {
     gap: 20,
   },
   memberCard: {
-    background: '#fff', borderRadius: 18, overflow: 'hidden',
-    border: '1px solid rgba(15,31,61,0.07)',
+    background: 'var(--surface)', borderRadius: 18, overflow: 'hidden',
+    border: '1px solid var(--border)',
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     padding: '0 20px 24px',
     transition: 'transform 0.35s cubic-bezier(.22,.68,0,1.2), opacity 0.45s ease, box-shadow 0.25s ease',
@@ -588,7 +588,7 @@ const S = {
     fontFamily: 'inherit', lineHeight: 1,
   },
   memberName: {
-    fontSize: 13.5, fontWeight: 700, color: '#0f1f3d',
+    fontSize: 13.5, fontWeight: 700, color: 'var(--text-h)',
     margin: '0 0 4px', textAlign: 'center', lineHeight: 1.3,
   },
   memberRoll: {
@@ -607,15 +607,15 @@ const S = {
     gap: 12,
   },
   techPill: {
-    background: '#fff', borderRadius: 12, padding: '14px 18px',
-    border: '1px solid rgba(15,31,61,0.08)',
+    background: 'var(--surface)', borderRadius: 12, padding: '14px 18px',
+    border: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', gap: 12,
   },
   techDot: {
     width: 10, height: 10, borderRadius: '50%', flexShrink: 0,
   },
   techName: {
-    display: 'block', fontSize: 13.5, fontWeight: 600, color: '#1f2937',
+    display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--text)',
   },
   techCat: {
     display: 'block', fontSize: 11, color: '#9ca3af',
