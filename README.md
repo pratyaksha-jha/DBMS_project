@@ -12,7 +12,7 @@ This project set out to fix that problem. The core objective was to build a sing
 *   **/backend/api/**: Contains `main.py`, the core FastAPI application serving the data endpoints.
 *   **/backend/data/**: Houses the cleaned database (`clean_nirf.db`), cleanup SQL scripts, and metric JSON files.
 *   **/backend/database/**: Scripts for transforming raw CSVs (`nirf_all.csv`) and raw python data (`raw_para25.py`) into the final SQLite DB. Includes specific transformation logic for budgets and placements.
-*   **/backend/scraper/**: Web scraping scripts to pull fresh data directly from the NIRF portal. Includes specific modules like `budget.py`, `placements.py`, and comparison scripts (`ghy_vs_hyd_10yrs.py`). Scraped HTML is cached in `/scraped_html/`.
+*   **/backend/scraper/**: Web scraping scripts to pull fresh data directly from the NIRF portal. Includes specific modules like `budget.py`, `placements.py`. Scraped HTML is cached in `/scraped_html/`.
 *   **/frontend/**: The React-based user interface.
 
 ## Tech Stack
