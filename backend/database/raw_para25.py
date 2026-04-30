@@ -8,9 +8,7 @@ from img2table.document import Image as Img2TableImage
 from img2table.ocr import TesseractOCR
 
 
-# -----------------------------
 # CONFIG
-# -----------------------------
 YEAR = 2025
 DOMAINS = ["Engineering", "Overall"]
 
@@ -19,16 +17,12 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 IMG_URL = "https://www.nirfindia.org/nirfpdfcdn/{year}/graph/{domain}/{iid}.{ext}"
 
 
-# -----------------------------
 # SAVE PATH (IMPORTANT FIX)
-# -----------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "nirf_all.csv")
 
 
-# -----------------------------
 # LABEL MAP
-# -----------------------------
 LABEL_MAP = {
     "ss": "SS", "fsr": "FSR", "fqe": "FQE", "fru": "FRU",
     "pu": "PU", "qp": "QP", "ipr": "IPR", "fppp": "FPPP",
@@ -67,9 +61,7 @@ def clean_num(text):
     return float(m.group()) if m else None
 
 
-# -----------------------------
 # GET INSTITUTES
-# -----------------------------
 def get_institutes(domain):
     url = f"https://www.nirfindia.org/Rankings/{YEAR}/{domain}Ranking.html"
     r = requests.get(url, headers=HEADERS, timeout=15)
@@ -92,9 +84,7 @@ def get_institutes(domain):
     return [(i + 1, iid) for i, iid in enumerate(unique_ids)]
 
 
-# -----------------------------
 # FETCH IMAGE
-# -----------------------------
 def fetch_image(iid, domain):
     for ext in ["png", "jpg"]:
         url = IMG_URL.format(year=YEAR, domain=domain, iid=iid, ext=ext)
@@ -105,10 +95,7 @@ def fetch_image(iid, domain):
 
     return None
 
-
-# -----------------------------
 # OCR PARSER
-# -----------------------------
 ocr = TesseractOCR()
 
 
@@ -150,9 +137,7 @@ def parse_image(content):
     return scores
 
 
-# -----------------------------
 # MAIN
-# -----------------------------
 def main():
     results = []
 
